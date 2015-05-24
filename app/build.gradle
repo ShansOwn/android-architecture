@@ -70,6 +70,9 @@ dependencies {
   compile fileTree(dir: 'libs', include: ['*.jar'])
   compile 'com.android.support:appcompat-v7:22.1.1'
 
+  apt 'org.projectlombok:lombok:1.16.4'
+  provided 'org.projectlombok:lombok:1.16.4'
+
   compile 'com.google.dagger:dagger:2.0'
   apt 'com.google.dagger:dagger-compiler:2.0'
   provided 'javax.annotation:jsr250-api:1.0'
@@ -93,9 +96,6 @@ dependencies {
   compile 'io.reactivex:rxandroid:0.24.0'
 
   compile 'de.greenrobot:eventbus:2.4.0'
-
-  apt 'org.projectlombok:lombok:1.16.4'
-  provided 'org.projectlombok:lombok:1.16.4'
 
   compile 'net.danlew:android.joda:2.7.2'
 }
