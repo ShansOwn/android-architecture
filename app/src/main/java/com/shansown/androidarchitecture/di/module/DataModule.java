@@ -1,6 +1,7 @@
 package com.shansown.androidarchitecture.di.module;
 
 import android.app.Application;
+import android.content.SharedPreferences;
 import com.squareup.okhttp.Cache;
 import com.squareup.okhttp.OkHttpClient;
 import dagger.Module;
@@ -8,18 +9,18 @@ import dagger.Provides;
 import java.io.File;
 import javax.inject.Singleton;
 
+import static android.content.Context.MODE_PRIVATE;
 import static com.jakewharton.byteunits.DecimalByteUnit.MEGABYTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 @Module
-public final class NetworkModule {
+public final class DataModule {
 
   static final int DISK_CACHE_SIZE = (int) MEGABYTES.toBytes(50);
 
-  @Provides
-  @Singleton
-  OkHttpClient provideOkHttpClient(Application app) {
-    return createOkHttpClient(app);
+  @Provides @Singleton
+  SharedPreferences provideSharedPreferences(Application app) {
+    return app.getSharedPreferences("AA", MODE_PRIVATE);
   }
 
   static OkHttpClient createOkHttpClient(Application app) {

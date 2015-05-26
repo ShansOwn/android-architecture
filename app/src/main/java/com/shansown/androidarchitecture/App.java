@@ -1,28 +1,25 @@
 package com.shansown.androidarchitecture;
 
 import android.app.Application;
-import com.shansown.androidarchitecture.di.Dagger;
+import android.support.annotation.NonNull;
+import com.shansown.androidarchitecture.di.Injector;
+import com.shansown.androidarchitecture.di.component.AppComponent;
+import com.shansown.androidarchitecture.ui.ActivityHierarchyServer;
+import com.shansown.androidarchitecture.util.LumberYard;
 import com.squareup.leakcanary.LeakCanary;
+import javax.inject.Inject;
 import net.danlew.android.joda.JodaTimeAndroid;
 import timber.log.Timber;
 
-public class App extends Application {
+public final class App extends Application {
 
-  private static App sInstance;
+  private AppComponent component;
 
-  // Hold reference for no GC-ing
-  Dagger mDagger;
-
-  public static App getInstance() {
-    return sInstance;
-  }
+  @Inject ActivityHierarchyServer activityHierarchyServer;
+  @Inject LumberYard lumberYard;
 
   @Override public void onCreate() {
     super.onCreate();
-    sInstance = this;
-    mDagger = Dagger.initDagger(this);
-    Dagger.appComponent().inject(this);
-
     JodaTimeAndroid.init(this);
     LeakCanary.install(this);
 
@@ -32,5 +29,24 @@ public class App extends Application {
       // TODO Crashlytics.start(this);
       // TODO Timber.plant(new CrashlyticsTree());
     }
+
+    component = initComponent();
+    component.inject(this);
+
+    lumberYard.cleanUp();
+    Timber.plant(lumberYard.tree());
+
+    registerActivityLifecycleCallbacks(activityHierarchyServer);
+  }
+
+  private AppComponent initComponent() {
+    return AppComponent.Initializer.init(this);
+  }
+
+  @Override public Object getSystemService(@NonNull String name) {
+    if (Injector.matchesService(name, AppComponent.class)) {
+      return component;
+    }
+    return super.getSystemService(name);
   }
 }

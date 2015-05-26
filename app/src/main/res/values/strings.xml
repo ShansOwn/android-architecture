@@ -1,7 +1,22 @@
 <resources>
+  <!-- Titles -->
   <string name="app_name">Android Architecture</string>
   <string name="launcher_name">AA</string>
 
-  <string name="hello_world">Hello world!</string>
+  <!-- Actions -->
   <string name="action_settings">Settings</string>
+
+  <!-- Messages -->
+  <string name="msg_no_intent_handler">
+    There are no applications available to handle this action.
+  </string>
+
+  <!-- Accessibility-only descriptions -->
+  <string name="drawer_close">Close navigation drawer</string>
+  <string name="drawer_open">Open navigation drawer</string>
+
+  <!-- Other strings -->
+  <string name="hello_world">Hello world!</string>
+  <string name="drawer_item_1">Item 1</string>
+  <string name="drawer_item_2">Item 2</string>
 </resources>

@@ -1,11 +1,10 @@
 package com.shansown.androidarchitecture.di.module;
 
-import com.shansown.androidarchitecture.di.module.ReleaseNetworkModule;
 import dagger.Module;
 
 /**
  * Module that provides objects which will live during the application lifecycle.
  */
-@Module(includes = {ReleaseNetworkModule.class})
+@Module(includes = {InternalReleaseUiModule.class, ReleaseDataModule.class})
 public final class InternalReleaseAppModule {
 }

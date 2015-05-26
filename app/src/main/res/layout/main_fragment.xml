@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/AppTheme.RootView.Vertical"
+    >
+  <include layout="@layout/fragment_toolbar"/>
+  <LinearLayout style="@style/AppTheme.MainContent.Vertical">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/hello_world"
+        />
+  </LinearLayout>
+</LinearLayout>

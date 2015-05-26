@@ -11,7 +11,7 @@ import lombok.AllArgsConstructor;
 /**
  * Module that provides objects which will live during the application lifecycle.
  */
-@Module(includes = {NetworkModule.class})
+@Module(includes = {DataModule.class})
 @AllArgsConstructor
 public final class AppModule {
 
