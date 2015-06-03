@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import com.shansown.androidarchitecture.di.Injector;
 import com.shansown.androidarchitecture.di.component.AppComponent;
 import com.shansown.androidarchitecture.ui.ActivityHierarchyServer;
+import com.shansown.androidarchitecture.util.PrettyLogger;
 import com.shansown.androidarchitecture.util.LumberYard;
 import com.squareup.leakcanary.LeakCanary;
 import javax.inject.Inject;
@@ -24,7 +25,7 @@ public final class App extends Application {
     LeakCanary.install(this);
 
     if (BuildConfig.DEBUG) {
-      Timber.plant(new Timber.DebugTree());
+      Timber.plant(new PrettyLogger());
     } else {
       // TODO Crashlytics.start(this);
       // TODO Timber.plant(new CrashlyticsTree());

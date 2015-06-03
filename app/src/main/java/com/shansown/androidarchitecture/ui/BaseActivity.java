@@ -20,6 +20,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.Optional;
 import com.shansown.androidarchitecture.R;
+import com.shansown.androidarchitecture.di.Injector;
 import com.shansown.androidarchitecture.di.component.ActivityComponent;
 import javax.inject.Inject;
 import timber.log.Timber;
@@ -42,7 +43,7 @@ public abstract class BaseActivity extends AppCompatActivity
 
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    injectDependencies();
+    onInjectDependencies();
     setupView();
     injectViews();
     initActionbarToolbar();
@@ -106,18 +107,11 @@ public abstract class BaseActivity extends AppCompatActivity
   @LayoutRes protected abstract int getLayoutId();
 
   /**
-   * Init new Dagger component with Activity scope needed to this Activity.
-   *
-   * @return newly initialized component with new dependencies to provide.
+   * Best place to init Dagger Activity scope component
+   * and inject the declared one in the activity if exist.
    */
-  protected abstract ActivityComponent initComponent();
-
-  /**
-   * Get Dagger component with Activity scope needed to this Activity.
-   *
-   * @return component with new dependencies to provide.
-   */
-  protected abstract ActivityComponent getComponent();
+  protected void onInjectDependencies() {
+  }
 
   /**
    * Called when actionbar toolbar has been initialized
@@ -134,17 +128,6 @@ public abstract class BaseActivity extends AppCompatActivity
   }
 
   /**
-   * Get Dagger {@link ActivityComponent} child and inject the
-   * declared one in the activity if exist.
-   */
-  private void injectDependencies() {
-    ActivityComponent component = initComponent();
-    if (component != null) {
-      component.inject(this);
-    }
-  }
-
-  /**
    * Replace every field annotated with ButterKnife annotations like @InjectView with the proper
    * value.
    */
@@ -153,9 +136,9 @@ public abstract class BaseActivity extends AppCompatActivity
   }
 
   private boolean initActionbarToolbar() {
-    actionbarToolbar = ButterKnife.findById(this, R.id.activity_toolbar);
+    actionbarToolbar = ButterKnife.findById(this, R.id.toolbar_activity);
     if (actionbarToolbar == null) {
-      actionbarToolbar = ButterKnife.findById(this, R.id.fragment_toolbar);
+      actionbarToolbar = ButterKnife.findById(this, R.id.toolbar_fragment);
     }
     if (actionbarToolbar == null) return false;
     setSupportActionBar(actionbarToolbar);

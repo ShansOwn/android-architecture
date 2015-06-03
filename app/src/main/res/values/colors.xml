@@ -6,4 +6,11 @@
 
   <color name="drawer_background">@android:color/white</color>
   <color name="drawer_header_background">@color/theme_primary_dark</color>
+
+  <color name="text_primary">#eee</color>
+  <color name="text_secondary">#ccc</color>
+
+  <color name="list_divider">#ccc</color>
+
+  <color name="avatar_stroke">#1a000000</color>
 </resources>

@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="@dimen/general_margin"
+    android:padding="@dimen/margin_general"
     >
   <EditText
       android:id="@+id/title"
@@ -20,7 +20,7 @@
       android:id="@+id/description"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:layout_marginTop="@dimen/general_margin"
+      android:layout_marginTop="@dimen/margin_general"
       android:hint="@string/bugreport_addition_details"
       android:inputType="textCapSentences|textAutoCorrect"
       />
@@ -28,20 +28,20 @@
       android:id="@+id/screenshot"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:layout_marginTop="@dimen/general_margin"
+      android:layout_marginTop="@dimen/margin_general"
       android:background="?android:attr/selectableItemBackground"
       android:text="@string/bugreport_include_screenshot"
-      android:textSize="@dimen/general_text"
+      android:textSize="@dimen/text_general"
       tools:checked="true"
       />
   <CheckBox
       android:id="@+id/logs"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:layout_marginTop="@dimen/general_margin"
+      android:layout_marginTop="@dimen/margin_general"
       android:background="?android:attr/selectableItemBackground"
       android:text="@string/bugreport_include_logs"
-      android:textSize="@dimen/general_text"
+      android:textSize="@dimen/text_general"
       tools:checked="true"
       />
 </com.shansown.androidarchitecture.ui.bugreport.BugReportView>

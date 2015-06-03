@@ -2,10 +2,10 @@ package com.shansown.androidarchitecture.di.module;
 
 import android.app.Application;
 import android.content.SharedPreferences;
-import com.shansown.androidarchitecture.data.annotation.PixelGridEnabled;
-import com.shansown.androidarchitecture.data.annotation.PixelRatioEnabled;
-import com.shansown.androidarchitecture.data.annotation.ScalpelEnabled;
-import com.shansown.androidarchitecture.data.annotation.ScalpelWireframeEnabled;
+import com.shansown.androidarchitecture.di.annotation.PixelGridEnabled;
+import com.shansown.androidarchitecture.di.annotation.PixelRatioEnabled;
+import com.shansown.androidarchitecture.di.annotation.ScalpelEnabled;
+import com.shansown.androidarchitecture.di.annotation.ScalpelWireframeEnabled;
 import com.shansown.androidarchitecture.data.prefs.RxSharedPreferences;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.picasso.OkHttpDownloader;
@@ -16,10 +16,10 @@ import javax.inject.Singleton;
 import rx.Observable;
 import timber.log.Timber;
 
-@Module
+@Module(includes = DebugApiModule.class)
 public final class DebugDataModule {
 
-  private static final boolean DEFAULT_PICASSO_DEBUGGING = false; // Debug indicators displayed
+  private static final boolean DEFAULT_PICASSO_DEBUGGING = true; // Debug indicators displayed
   private static final boolean DEFAULT_PIXEL_GRID_ENABLED = false; // No pixel grid overlay.
   private static final boolean DEFAULT_PIXEL_RATIO_ENABLED = false; // No pixel ratio overlay.
   private static final boolean DEFAULT_SCALPEL_ENABLED = false; // No crazy 3D view tree.
@@ -61,7 +61,7 @@ public final class DebugDataModule {
     Picasso instance = new Picasso.Builder(app).downloader(new OkHttpDownloader(client))
         .listener((picasso, uri, e) -> Timber.e(e, "Failed to load image: %s", uri))
         .build();
-    instance.setIndicatorsEnabled(true);
+    instance.setIndicatorsEnabled(DEFAULT_PICASSO_DEBUGGING);
     return instance;
   }
 }

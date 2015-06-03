@@ -9,7 +9,7 @@ import dagger.Provides;
 import javax.inject.Singleton;
 import timber.log.Timber;
 
-@Module
+@Module(includes = ReleaseApiModule.class)
 public final class ReleaseDataModule {
 
   @Provides @Singleton

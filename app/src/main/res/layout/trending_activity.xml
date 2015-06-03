@@ -12,12 +12,12 @@
       android:layout_height="match_parent"
       >
     <fragment
-        class="com.shansown.androidarchitecture.ui.main.MainFragment"
+        class="com.shansown.androidarchitecture.ui.trending.TrendingFragment"
         android:id="@+id/main_fragment"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        tools:layout="@layout/main_fragment"
+        tools:layout="@layout/trending_fragment"
         />
   </LinearLayout>
   <include layout="@layout/drawer"/>

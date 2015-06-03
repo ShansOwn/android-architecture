@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/AppTheme.RootView"
+    android:id="@+id/trending_repository_item"
+    android:background="?android:attr/selectableItemBackground"
+    android:clickable="true"
+    android:padding="@dimen/margin_general"
+    >
+  <ImageView
+      style="@style/AppTheme.Image.Avatar"
+      android:id="@+id/trending_repository_avatar"
+      tools:src="@drawable/avatar"
+      />
+  <TextView
+      style="@style/AppTheme.ItemTitle.Repository"
+      android:id="@+id/trending_repository_name"
+      android:layout_toEndOf="@id/trending_repository_avatar"
+      tools:text="Repository"
+      />
+  <TextView
+      style="@style/AppTheme.ItemSubTitle.Repository"
+      android:id="@+id/trending_repository_description"
+      android:layout_below="@id/trending_repository_name"
+      android:layout_toEndOf="@id/trending_repository_avatar"
+      tools:text="Repository description"
+      />
+  <LinearLayout
+      android:orientation="horizontal"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_below="@id/trending_repository_description"
+      android:layout_marginTop="@dimen/space_between_content_areas"
+      android:layout_toEndOf="@id/trending_repository_avatar"
+      >
+    <TextView
+        style="@style/AppTheme.ItemMinorContent.Repository.Star"
+        android:id="@+id/trending_repository_stars"
+        tools:text="1487"
+        />
+    <TextView
+        style="@style/AppTheme.ItemMinorContent.Repository.Fork"
+        android:id="@+id/trending_repository_forks"
+        tools:text="260"
+        />
+  </LinearLayout>
+</RelativeLayout>

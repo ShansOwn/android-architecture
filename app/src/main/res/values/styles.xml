@@ -26,12 +26,69 @@
     <item name="android:fitsSystemWindows">true</item>
   </style>
 
-  <style name="AppTheme.MainContent">
+  <style name="AppTheme.ListView">
     <item name="android:layout_width">match_parent</item>
     <item name="android:layout_height">match_parent</item>
+    <item name="android:divider">@color/list_divider</item>
   </style>
 
-  <style name="AppTheme.MainContent.Vertical">
-    <item name="android:orientation">vertical</item>
+  <style name="AppTheme.Image">
+  </style>
+
+  <style name="AppTheme.ItemTitle">
+    <item name="android:layout_width">wrap_content</item>
+    <item name="android:layout_height">wrap_content</item>
+    <item name="android:textStyle">bold</item>
+    <item name="android:textColor">@color/text_primary</item>
+    <item name="android:textSize">@dimen/text_general</item>
+  </style>
+
+  <style name="AppTheme.ItemSubTitle">
+    <item name="android:layout_width">match_parent</item>
+    <item name="android:layout_height">wrap_content</item>
+    <item name="android:textColor">@color/text_primary</item>
+    <item name="android:textSize">@dimen/text_general_lower</item>
+  </style>
+
+  <style name="AppTheme.ItemMinorContent">
+    <item name="android:layout_width">wrap_content</item>
+    <item name="android:layout_height">wrap_content</item>
+    <item name="android:textColor">@color/text_primary</item>
+  </style>
+
+  <style name="AppTheme.Image.Avatar">
+    <item name="android:layout_width">@dimen/avatar</item>
+    <item name="android:layout_height">@dimen/avatar</item>
+    <item name="android:layout_centerVertical">true</item>
+    <item name="android:layout_alignParentStart">true</item>
+    <item name="android:layout_marginEnd">@dimen/margin_general</item>
+    <item name="android:importantForAccessibility">no</item>
+  </style>
+
+  <style name="AppTheme.ItemTitle.Repository">
+    <item name="android:maxLines">1</item>
+    <item name="android:singleLine">true</item>
+    <item name="android:ellipsize">end</item>
+  </style>
+
+  <style name="AppTheme.ItemSubTitle.Repository">
+    <item name="android:maxLines">3</item>
+    <item name="android:ellipsize">end</item>
+  </style>
+
+  <style name="AppTheme.ItemMinorContent.Repository">
+    <item name="android:gravity">center</item>
+    <item name="android:drawablePadding">@dimen/text_general_small_drawable_padding</item>
+    android:layout_marginEnd="16dp"
+    android:drawableStart="@drawable/star"
+  </style>
+
+  <style name="AppTheme.ItemMinorContent.Repository.Star">
+    <item name="android:drawableStart">@drawable/star</item>
+    <item name="android:layout_marginEnd">@dimen/margin_general</item>
+  </style>
+
+  <style name="AppTheme.ItemMinorContent.Repository.Fork">
+    <item name="android:drawableStart">@drawable/fork</item>
   </style>
 </resources>

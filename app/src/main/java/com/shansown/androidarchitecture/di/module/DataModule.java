@@ -2,18 +2,23 @@ package com.shansown.androidarchitecture.di.module;
 
 import android.app.Application;
 import android.content.SharedPreferences;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.shansown.androidarchitecture.data.Clock;
+import com.shansown.androidarchitecture.data.api.DateTimeConverter;
 import com.squareup.okhttp.Cache;
 import com.squareup.okhttp.OkHttpClient;
 import dagger.Module;
 import dagger.Provides;
 import java.io.File;
 import javax.inject.Singleton;
+import org.joda.time.DateTime;
 
 import static android.content.Context.MODE_PRIVATE;
 import static com.jakewharton.byteunits.DecimalByteUnit.MEGABYTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-@Module
+@Module(includes = ApiModule.class)
 public final class DataModule {
 
   static final int DISK_CACHE_SIZE = (int) MEGABYTES.toBytes(50);
@@ -21,6 +26,16 @@ public final class DataModule {
   @Provides @Singleton
   SharedPreferences provideSharedPreferences(Application app) {
     return app.getSharedPreferences("AA", MODE_PRIVATE);
+  }
+
+  @Provides @Singleton Gson provideGson() {
+    return new GsonBuilder()
+        .registerTypeAdapter(DateTime.class, new DateTimeConverter())
+        .create();
+  }
+
+  @Provides @Singleton Clock provideClock() {
+    return Clock.REAL;
   }
 
   static OkHttpClient createOkHttpClient(Application app) {

@@ -11,20 +11,18 @@ import lombok.AllArgsConstructor;
 /**
  * Module that provides objects which will live during the application lifecycle.
  */
-@Module(includes = {DataModule.class})
+@Module(includes = { DataModule.class })
 @AllArgsConstructor
 public final class AppModule {
 
   private final App application;
 
-  @Provides
-  @Singleton
+  @Provides @Singleton
   Application provideApplication() {
     return application;
   }
 
-  @Provides
-  @Singleton
+  @Provides @Singleton
   Context provideAppContext() {
     return application;
   }

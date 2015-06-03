@@ -17,6 +17,7 @@ import butterknife.InjectView;
 import butterknife.Optional;
 import com.shansown.androidarchitecture.R;
 import com.shansown.androidarchitecture.di.component.ActivityComponent;
+import timber.log.Timber;
 
 /**
  * Base fragment created to be extended by every fragment in this application. This class provides
@@ -25,11 +26,11 @@ import com.shansown.androidarchitecture.di.component.ActivityComponent;
  */
 public abstract class BaseFragment extends Fragment implements Toolbar.OnMenuItemClickListener {
 
-  @Optional @InjectView(R.id.fragment_toolbar) Toolbar toolbar;
+  @Optional @InjectView(R.id.toolbar_fragment) Toolbar toolbar;
 
   @Override public void onAttach(Activity activity) {
     super.onAttach(activity);
-    injectDependencies();
+    onInjectDependencies();
   }
 
   @Override public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -86,6 +87,13 @@ public abstract class BaseFragment extends Fragment implements Toolbar.OnMenuIte
   }
 
   /**
+   * Best place to get Dagger Activity scope component
+   * and inject the declared one in the fragment if exist.
+   */
+  protected void onInjectDependencies() {
+  }
+
+  /**
    * Called when fragment toolbar has been initialized
    *
    * @param toolbar Initialized toolbar
@@ -108,7 +116,7 @@ public abstract class BaseFragment extends Fragment implements Toolbar.OnMenuIte
   }
 
   private boolean hasActivityOwnToolbar() {
-    return ButterKnife.findById(getActivity(), R.id.activity_toolbar) != null;
+    return ButterKnife.findById(getActivity(), R.id.toolbar_activity) != null;
   }
 
   private boolean initToolbar() {
@@ -124,17 +132,6 @@ public abstract class BaseFragment extends Fragment implements Toolbar.OnMenuIte
     }
     onToolbarInit(toolbar);
     return true;
-  }
-
-  /**
-   * Replace every field annotated using @Inject annotation with the provided dependency specified
-   * inside a Dagger module value.
-   */
-  private void injectDependencies() {
-    ActivityComponent component = ((BaseActivity) getActivity()).getComponent();
-    if (component != null) {
-      component.inject(this);
-    }
   }
 
   /**

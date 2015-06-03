@@ -1,4 +1,4 @@
-package com.shansown.androidarchitecture.data.annotation;
+package com.shansown.androidarchitecture.di.annotation;
 
 import java.lang.annotation.Retention;
 import javax.inject.Qualifier;
