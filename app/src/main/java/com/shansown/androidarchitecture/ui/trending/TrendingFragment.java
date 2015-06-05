@@ -51,6 +51,11 @@ public final class TrendingFragment extends BaseFragment
     initViews(view);
   }
 
+  @Override public void onDestroyView() {
+    swipeRefreshView.setOnRefreshListener(null);
+    super.onDestroyView();
+  }
+
   @Override public void onResume() {
     super.onResume();
     bindViewModel();
