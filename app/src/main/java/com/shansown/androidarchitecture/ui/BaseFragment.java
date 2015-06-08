@@ -17,6 +17,7 @@ import butterknife.InjectView;
 import butterknife.Optional;
 import com.shansown.androidarchitecture.R;
 import com.shansown.androidarchitecture.di.component.ActivityComponent;
+import lombok.Getter;
 import timber.log.Timber;
 
 /**
@@ -27,6 +28,9 @@ import timber.log.Timber;
 public abstract class BaseFragment extends Fragment implements Toolbar.OnMenuItemClickListener {
 
   @Optional @InjectView(R.id.toolbar_fragment) Toolbar toolbar;
+
+  @Getter
+  private boolean wasPaused;
 
   @Override public void onAttach(Activity activity) {
     super.onAttach(activity);
@@ -46,6 +50,11 @@ public abstract class BaseFragment extends Fragment implements Toolbar.OnMenuIte
   @Override public void onActivityCreated(Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
     initToolbar();
+  }
+
+  @Override public void onPause() {
+    super.onPause();
+    wasPaused = true;
   }
 
   @Override public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {

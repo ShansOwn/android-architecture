@@ -3,14 +3,33 @@
     style="@style/AppTheme.RootView.Vertical"
     >
   <include layout="@layout/toolbar_fragment"/>
-  <android.support.v4.widget.SwipeRefreshLayout
-      android:id="@+id/trending_swipe_refresh"
+  <com.shansown.androidarchitecture.ui.misc.BetterViewAnimator
+      android:id="@+id/trending_animator"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
+      android:inAnimation="@android:anim/fade_in"
+      android:outAnimation="@android:anim/fade_out"
       >
-    <android.support.v7.widget.RecyclerView
-        style="@style/AppTheme.ListView"
-        android:id="@+id/trending_list"
-        />
-  </android.support.v4.widget.SwipeRefreshLayout>
+    <RelativeLayout
+        android:id="@+id/trending_loading"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+      <ProgressBar
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_centerInParent="true"
+          />
+    </RelativeLayout>
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/trending_swipe_refresh"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+      <android.support.v7.widget.RecyclerView
+          style="@style/AppTheme.ListView"
+          android:id="@+id/trending_list"
+          />
+    </android.support.v4.widget.SwipeRefreshLayout>
+  </com.shansown.androidarchitecture.ui.misc.BetterViewAnimator>
 </LinearLayout>

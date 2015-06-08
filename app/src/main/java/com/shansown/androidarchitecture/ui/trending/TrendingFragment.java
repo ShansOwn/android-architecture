@@ -15,6 +15,7 @@ import com.shansown.androidarchitecture.data.api.dto.RepositoryData;
 import com.shansown.androidarchitecture.di.Injector;
 import com.shansown.androidarchitecture.di.component.TrendingActivityComponent;
 import com.shansown.androidarchitecture.ui.BaseFragment;
+import com.shansown.androidarchitecture.ui.misc.BetterViewAnimator;
 import com.shansown.androidarchitecture.ui.misc.DividerItemDecoration;
 import com.shansown.androidarchitecture.ui.renderer.repository.RepositoryCollection;
 import com.shansown.androidarchitecture.ui.renderer.repository.RepositoryRendererAdapterFactory;
@@ -29,6 +30,7 @@ import static com.shansown.androidarchitecture.ui.misc.DividerItemDecoration.VER
 public final class TrendingFragment extends BaseFragment
     implements SwipeRefreshLayout.OnRefreshListener {
 
+  @InjectView(R.id.trending_animator) BetterViewAnimator animatorView;
   @InjectView(R.id.trending_swipe_refresh) SwipeRefreshLayout swipeRefreshView;
   @InjectView(R.id.trending_list) RecyclerView trendingList;
 
@@ -54,7 +56,7 @@ public final class TrendingFragment extends BaseFragment
   @Override public void onResume() {
     super.onResume();
     bindViewModel();
-    onRefresh();
+    onLoad();
   }
 
   @Override public void onPause() {
@@ -86,8 +88,13 @@ public final class TrendingFragment extends BaseFragment
   }
 
   @Override public void onRefresh() {
-    showLoading();
+    showRefreshing();
     viewModel.onRefresh();
+  }
+
+  protected void onLoad() {
+    showLoading();
+    viewModel.onLoad();
   }
 
   private void initViews(View rootView) {
@@ -115,10 +122,22 @@ public final class TrendingFragment extends BaseFragment
   }
 
   private void showLoading() {
+    if (!(animatorView.getDisplayedChildId() == R.id.trending_loading)) {
+      animatorView.setDisplayedChildId(R.id.trending_loading);
+    }
+  }
+
+  private void showContent() {
+    if (!(animatorView.getDisplayedChildId() == R.id.trending_swipe_refresh)) {
+      animatorView.setDisplayedChildId(R.id.trending_swipe_refresh);
+    }
+  }
+
+  private void showRefreshing() {
     swipeRefreshView.setRefreshing(true);
   }
 
-  private void hideLoading() {
+  private void hideRefreshing() {
     swipeRefreshView.setRefreshing(false);
   }
 
@@ -127,12 +146,13 @@ public final class TrendingFragment extends BaseFragment
     repositoryCollection.clear();
     repositoryCollection.addAll(repositories);
     adapter.notifyDataSetChanged();
-    hideLoading();
+    hideRefreshing();
+    showContent();
   }
 
   private void onRepositoriesFailed(Throwable e) {
     Timber.e(e, "On repositories failed");
-    hideLoading();
+    hideRefreshing();
   }
 
   private boolean isRtl(@NonNull View view) {
