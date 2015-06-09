@@ -6,6 +6,7 @@ import com.pedrogomez.renderers.RVRendererAdapter;
 import com.shansown.androidarchitecture.data.api.dto.RepositoryData;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import timber.log.Timber;
 
 @Singleton
 public final class RepositoryRendererAdapterFactory {
@@ -18,6 +19,7 @@ public final class RepositoryRendererAdapterFactory {
       RepositoryRendererBuilder rendererBuilder) {
     this.rendererBuilder = rendererBuilder;
     layoutInflater = LayoutInflater.from(context);
+    Timber.v("RepositoryRendererAdapterFactory created: " + this);
   }
 
   public RVRendererAdapter<RepositoryData> getRendererAdapter(

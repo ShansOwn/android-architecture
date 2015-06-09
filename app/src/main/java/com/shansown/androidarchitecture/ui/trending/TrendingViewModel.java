@@ -1,12 +1,12 @@
 package com.shansown.androidarchitecture.ui.trending;
 
 import com.shansown.androidarchitecture.data.api.Order;
-import com.shansown.androidarchitecture.data.api.SearchQuery;
 import com.shansown.androidarchitecture.data.api.Sort;
 import com.shansown.androidarchitecture.data.api.dto.RepositoryData;
 import com.shansown.androidarchitecture.data.interactor.GetRepositoriesUseCase;
 import java.util.List;
 import javax.inject.Inject;
+import org.joda.time.DateTime;
 import rx.Observable;
 import rx.Observer;
 import rx.subjects.BehaviorSubject;
@@ -26,8 +26,7 @@ public final class TrendingViewModel {
 
   private Sort sort = Sort.STARS;
   private Order order = Order.DESC;
-  private SearchQuery query =
-      new SearchQuery.Builder().createdSince(TrendingTimespan.WEEK.createdSince()).build();
+  private DateTime since = TrendingTimespan.WEEK.createdSince();
 
   @Inject public TrendingViewModel(GetRepositoriesUseCase getRepositoriesUseCase) {
     this.getRepositoriesUseCase = getRepositoriesUseCase;
@@ -55,7 +54,7 @@ public final class TrendingViewModel {
   }
 
   private void loadRepositories() {
-    getRepositoriesUseCase.execute(query, sort, order)
+    getRepositoriesUseCase.execute(since, sort, order)
         .subscribe(repositoriesObserver);
   }
 

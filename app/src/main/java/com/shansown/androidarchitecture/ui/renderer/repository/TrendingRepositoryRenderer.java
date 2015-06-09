@@ -18,8 +18,10 @@ import com.shansown.androidarchitecture.ui.misc.CircleStrokeTransformation;
 import com.shansown.androidarchitecture.ui.misc.Truss;
 import com.shansown.androidarchitecture.ui.trending.TrendingViewModel;
 import com.squareup.picasso.Picasso;
+import dagger.Lazy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import timber.log.Timber;
 
 @Singleton
 public final class TrendingRepositoryRenderer extends Renderer<RepositoryData> {
@@ -31,17 +33,17 @@ public final class TrendingRepositoryRenderer extends Renderer<RepositoryData> {
   @InjectView(R.id.trending_repository_forks) TextView forksView;
 
   private final Picasso picasso;
-  private final TrendingViewModel viewModel;
+  @Inject Lazy<TrendingViewModel> viewModelLazy;
   private final CircleStrokeTransformation avatarTransformation;
   private final int descriptionColor;
 
   @Inject
-  public TrendingRepositoryRenderer(Context context, Picasso picasso, TrendingViewModel viewModel) {
+  public TrendingRepositoryRenderer(Context context, Picasso picasso) {
     this.picasso = picasso;
-    this.viewModel = viewModel;
     avatarTransformation = new CircleStrokeTransformation(context,
         context.getResources().getColor(R.color.avatar_stroke), 1);
     descriptionColor = context.getResources().getColor(R.color.text_secondary);
+    Timber.v("TrendingRepositoryRenderer created: " + this);
   }
 
   @Override protected void setUpView(View rootView) {
@@ -68,7 +70,7 @@ public final class TrendingRepositoryRenderer extends Renderer<RepositoryData> {
   }
 
   @OnClick(R.id.trending_repository_item) void onItemClicked() {
-    viewModel.onRepositoryClicked(getContent());
+    viewModelLazy.get().onRepositoryClicked(getContent());
   }
 
   private void renderAvatar(String avatarUrl) {

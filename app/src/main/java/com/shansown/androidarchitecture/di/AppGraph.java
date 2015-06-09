@@ -29,16 +29,13 @@ public interface AppGraph {
   // UI module
   AppContainer appContainer();
   ActivityHierarchyServer activityHierarchyServer();
-  LumberYard limberYard();
+  LumberYard lumberYard();
 
-  TrendingRepositoryRenderer trendingRepositoryRenderer();
-  RepositoryRendererBuilder repositoryRendererBuilder();
   RepositoryRendererAdapterFactory repositoryRendererAdapterFactory();
 
   // Data module
   OkHttpClient okHttpClient();
   Picasso picasso();
-  GithubService githubService();
   GetRepositoriesUseCase getRepositoriesUseCase();
   Clock clock();
 }

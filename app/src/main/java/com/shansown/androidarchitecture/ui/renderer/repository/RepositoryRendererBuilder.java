@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import timber.log.Timber;
 
 @Singleton
 public final class RepositoryRendererBuilder extends RendererBuilder<RepositoryData> {
@@ -16,6 +17,7 @@ public final class RepositoryRendererBuilder extends RendererBuilder<RepositoryD
     Collection<Renderer<RepositoryData>> prototypes = new LinkedList<>();
     prototypes.add(trendingRepositoryRenderer);
     setPrototypes(prototypes);
+    Timber.v("RepositoryRendererBuilder created: " + this);
   }
 
   @Override protected Class getPrototypeClass(RepositoryData repositoryData) {
