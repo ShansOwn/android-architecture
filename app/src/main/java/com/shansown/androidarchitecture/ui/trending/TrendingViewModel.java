@@ -8,7 +8,6 @@ import java.util.List;
 import javax.inject.Inject;
 import org.joda.time.DateTime;
 import rx.Observable;
-import rx.Observer;
 import rx.subjects.BehaviorSubject;
 import timber.log.Timber;
 
@@ -21,6 +20,8 @@ public final class TrendingViewModel {
 
   private final BehaviorSubject<List<RepositoryData>> repositoriesSubject =
       BehaviorSubject.create();
+  private final BehaviorSubject<Boolean> refreshViewVisibilitySubject = BehaviorSubject.create();
+  private final BehaviorSubject<Boolean> loadViewVisibilitySubject = BehaviorSubject.create();
 
   private State state = State.LOADING;
 
@@ -36,17 +37,27 @@ public final class TrendingViewModel {
   public void onLoad() {
     Timber.d("On load");
     state = State.LOADING;
+    showLoading();
     loadRepositories();
   }
 
   public void onRefresh() {
     Timber.d("On refresh");
     state = State.REFRESHING;
+    showRefreshing();
     loadRepositories();
   }
 
   public Observable<List<RepositoryData>> getRepositories() {
     return repositoriesSubject;
+  }
+
+  public Observable<Boolean> getRefreshViewVisibility() {
+    return refreshViewVisibilitySubject;
+  }
+
+  public BehaviorSubject<Boolean> getLoadViewVisibility() {
+    return loadViewVisibilitySubject;
   }
 
   public void onRepositoryClicked(RepositoryData repository) {
@@ -55,25 +66,49 @@ public final class TrendingViewModel {
 
   private void loadRepositories() {
     getRepositoriesUseCase.execute(since, sort, order)
-        .subscribe(repositoriesObserver);
+        .subscribe(this::onRepositoriesLoaded, this::onRepositoriesFailed);
   }
 
-  private final Observer<List<RepositoryData>> repositoriesObserver =
-      new Observer<List<RepositoryData>>() {
-        @Override public void onCompleted() {
-        }
+  private void showRefreshing() {
+    refreshViewVisibilitySubject.onNext(true);
+  }
 
-        @Override public void onError(Throwable e) {
-          state = State.ON_ERROR;
-          repositoriesSubject.onError(e);
-        }
+  private void hideRefreshing() {
+    refreshViewVisibilitySubject.onNext(false);
+  }
 
-        @Override public void onNext(List<RepositoryData> repositories) {
-          Timber.d("Publishing " + repositories.size() + " repositories from the ViewModel");
-          state = State.ON_CONTENT;
-          repositoriesSubject.onNext(repositories);
-        }
-      };
+  private void showLoading() {
+    loadViewVisibilitySubject.onNext(true);
+  }
+
+  private void hideLoading() {
+    loadViewVisibilitySubject.onNext(false);
+  }
+
+  private void hideRefreshLoad(State state) {
+    switch (state) {
+      case REFRESHING:
+        hideRefreshing();
+        break;
+      case LOADING:
+        hideLoading();
+        break;
+      default: throw new IllegalStateException("View Model is in illegal state: " + state);
+    }
+  }
+
+  private void onRepositoriesLoaded(List<RepositoryData> repositories) {
+    Timber.d("Publishing " + repositories.size() + " repositories from the ViewModel");
+    hideRefreshLoad(state);
+    state = State.ON_CONTENT;
+    repositoriesSubject.onNext(repositories);
+  }
+
+  private void onRepositoriesFailed(Throwable e) {
+    Timber.e(e, "On repositories failed!");
+    hideRefreshLoad(state);
+    state = State.ON_ERROR;
+  }
 
   private enum State {
     LOADING, REFRESHING, ON_ERROR, ON_CONTENT
