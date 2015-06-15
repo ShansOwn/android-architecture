@@ -6,10 +6,12 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.shansown.androidarchitecture.data.Clock;
 import com.shansown.androidarchitecture.data.api.DateTimeConverter;
+import com.shansown.androidarchitecture.data.db.dao.RepositoryDao;
+import com.shansown.androidarchitecture.data.db.dao.UserDao;
+import com.shansown.androidarchitecture.data.db.dao.impl.RepositoryProviderDao;
+import com.shansown.androidarchitecture.data.db.dao.impl.UserProviderDao;
 import com.shansown.androidarchitecture.data.repository.RepoRepository;
 import com.shansown.androidarchitecture.data.repository.RepoRepositoryImpl;
-import com.shansown.androidarchitecture.data.repository.datasource.RepoDataStore;
-import com.shansown.androidarchitecture.data.repository.datasource.ServerRepoDataStore;
 import com.squareup.okhttp.Cache;
 import com.squareup.okhttp.OkHttpClient;
 import dagger.Module;
@@ -32,14 +34,22 @@ public final class DataModule {
     return app.getSharedPreferences("AA", MODE_PRIVATE);
   }
 
-  @Provides @Singleton Gson provideGson() {
+  @Provides @Singleton Gson provideGson(DateTimeConverter dateTimeConverter) {
     return new GsonBuilder()
-        .registerTypeAdapter(DateTime.class, new DateTimeConverter())
+        .registerTypeAdapter(DateTime.class, dateTimeConverter)
         .create();
   }
 
   @Provides @Singleton RepoRepository provideRepoRepository(RepoRepositoryImpl repoRepository) {
     return repoRepository;
+  }
+
+  @Provides @Singleton RepositoryDao provideRepositoryDao(RepositoryProviderDao repositoryDao) {
+    return repositoryDao;
+  }
+
+  @Provides @Singleton UserDao provideUserDao(UserProviderDao userDao) {
+    return userDao;
   }
 
   @Provides @Singleton Clock provideClock() {

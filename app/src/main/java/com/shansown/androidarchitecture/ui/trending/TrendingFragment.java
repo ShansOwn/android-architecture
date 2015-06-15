@@ -11,7 +11,7 @@ import android.view.View;
 import butterknife.InjectView;
 import com.pedrogomez.renderers.RVRendererAdapter;
 import com.shansown.androidarchitecture.R;
-import com.shansown.androidarchitecture.data.api.dto.RepositoryData;
+import com.shansown.androidarchitecture.ui.model.Repository;
 import com.shansown.androidarchitecture.di.Injector;
 import com.shansown.androidarchitecture.di.component.TrendingActivityComponent;
 import com.shansown.androidarchitecture.ui.BaseFragment;
@@ -39,7 +39,7 @@ public final class TrendingFragment extends BaseFragment
   private final RxBinderUtil rxBinderUtil = new RxBinderUtil(this);
 
   private Toolbar toolbar;
-  private RVRendererAdapter<RepositoryData> adapter;
+  private RVRendererAdapter<Repository> adapter;
   private RepositoryCollection repositoryCollection = new RepositoryCollection();
 
   @Override protected void onInjectDependencies() {
@@ -138,7 +138,7 @@ public final class TrendingFragment extends BaseFragment
     }
   }
 
-  private void onRepositoriesLoaded(List<RepositoryData> repositories) {
+  private void onRepositoriesLoaded(List<Repository> repositories) {
     Timber.d("On repositories loaded: " + repositories);
     repositoryCollection.clear();
     repositoryCollection.addAll(repositories);

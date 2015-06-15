@@ -2,7 +2,7 @@ package com.shansown.androidarchitecture.data.interactor;
 
 import com.shansown.androidarchitecture.data.api.Order;
 import com.shansown.androidarchitecture.data.api.Sort;
-import com.shansown.androidarchitecture.data.api.dto.RepositoryData;
+import com.shansown.androidarchitecture.ui.model.Repository;
 import com.shansown.androidarchitecture.data.repository.RepoRepository;
 import java.util.List;
 import javax.inject.Inject;
@@ -13,8 +13,7 @@ import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 import timber.log.Timber;
 
-@Singleton
-public final class GetRepositoriesUseCase extends UseCase {
+@Singleton public final class GetRepositoriesUseCase {
 
   private final RepoRepository repoRepository;
 
@@ -23,20 +22,26 @@ public final class GetRepositoriesUseCase extends UseCase {
     Timber.v("GetRepositoriesUseCase created: " + this);
   }
 
-  public Observable<List<RepositoryData>> execute(DateTime since, Sort sort, Order order) {
-    return repoRepository.getRepositories(since, sort, order)
-        .doOnError(loadingError)
-        .doOnNext(loadingSuccess)
-        .observeOn(Schedulers.computation());
+  public Observable<List<Repository>> execute(DateTime since, Sort sort, Order order,
+      boolean force) {
+    return getRepos(since, sort, order, force) //
+        .doOnError(loadingError) //
+        .doOnNext(loadingSuccess) //
+        .subscribeOn(Schedulers.computation());
   }
 
-  @Override protected Observable buildUseCaseObservable() {
-    return null;
+  private Observable<List<Repository>> getRepos(DateTime since, Sort sort, Order order,
+      boolean force) {
+    if (force) {
+      return repoRepository.getForce(since, sort, order);
+    } else {
+      return repoRepository.get(since, sort, order);
+    }
   }
 
   private final Action1<Throwable> loadingError =
       throwable -> Timber.e(throwable, "Error on loading repositories");
 
-  private final Action1<List<RepositoryData>> loadingSuccess = repositories -> Timber.d(
+  private final Action1<List<Repository>> loadingSuccess = repositories -> Timber.d(
       "Publishing " + repositories.size() + " repositories from the GetRepositoriesUseCase");
 }

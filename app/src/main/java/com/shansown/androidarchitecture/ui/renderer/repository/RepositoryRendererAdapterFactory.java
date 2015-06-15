@@ -3,7 +3,7 @@ package com.shansown.androidarchitecture.ui.renderer.repository;
 import android.content.Context;
 import android.view.LayoutInflater;
 import com.pedrogomez.renderers.RVRendererAdapter;
-import com.shansown.androidarchitecture.data.api.dto.RepositoryData;
+import com.shansown.androidarchitecture.ui.model.Repository;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import timber.log.Timber;
@@ -22,7 +22,7 @@ public final class RepositoryRendererAdapterFactory {
     Timber.v("RepositoryRendererAdapterFactory created: " + this);
   }
 
-  public RVRendererAdapter<RepositoryData> getRendererAdapter(
+  public RVRendererAdapter<Repository> getRendererAdapter(
       final RepositoryCollection repositoryCollection) {
     return new RVRendererAdapter<>(layoutInflater, rendererBuilder, repositoryCollection);
   }

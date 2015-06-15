@@ -12,8 +12,8 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 import com.pedrogomez.renderers.Renderer;
 import com.shansown.androidarchitecture.R;
-import com.shansown.androidarchitecture.data.api.dto.RepositoryData;
-import com.shansown.androidarchitecture.data.api.dto.UserData;
+import com.shansown.androidarchitecture.ui.model.Repository;
+import com.shansown.androidarchitecture.ui.model.User;
 import com.shansown.androidarchitecture.ui.misc.CircleStrokeTransformation;
 import com.shansown.androidarchitecture.ui.misc.Truss;
 import com.shansown.androidarchitecture.ui.trending.TrendingViewModel;
@@ -24,7 +24,7 @@ import javax.inject.Singleton;
 import timber.log.Timber;
 
 @Singleton
-public final class TrendingRepositoryRenderer extends Renderer<RepositoryData> {
+public final class TrendingRepositoryRenderer extends Renderer<Repository> {
 
   @InjectView(R.id.trending_repository_avatar) ImageView avatarView;
   @InjectView(R.id.trending_repository_name) TextView nameView;
@@ -59,8 +59,8 @@ public final class TrendingRepositoryRenderer extends Renderer<RepositoryData> {
   }
 
   @Override public void render() {
-    RepositoryData repository = getContent();
-    UserData owner = repository.getOwner();
+    Repository repository = getContent();
+    User owner = repository.getOwner();
 
     renderAvatar(owner.getAvatarUrl());
     renderName(repository.getName());

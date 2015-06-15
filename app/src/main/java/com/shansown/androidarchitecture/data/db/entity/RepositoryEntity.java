@@ -1,34 +1,27 @@
-package com.shansown.androidarchitecture.data.api.dto;
+package com.shansown.androidarchitecture.data.db.entity;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import com.google.gson.annotations.SerializedName;
 import lombok.Getter;
 import org.joda.time.DateTime;
 
 import static com.shansown.androidarchitecture.util.Preconditions.checkNotNull;
 
 @Getter
-public final class RepositoryData {
+public final class RepositoryEntity {
   @NonNull private final String id;
   @NonNull private final String name;
-  @NonNull private final UserData owner;
+  @NonNull private final String ownerId;
   @Nullable private final String description;
-
-  @SerializedName("watchers")
   private final long stars;
   private final long forks;
+  private final String htmlUrl;
+  private final DateTime updatedAt;
 
-  @SerializedName("html_url")
-  @NonNull private final String htmlUrl;
-
-  @SerializedName("updated_at")
-  @NonNull private final DateTime updatedAt;
-
-  private RepositoryData(Builder builder) {
+  private RepositoryEntity(Builder builder) {
     this.id = checkNotNull(builder.id, "id == null");
     this.name = checkNotNull(builder.name, "name == null");
-    this.owner = checkNotNull(builder.owner, "owner == null");
+    this.ownerId = checkNotNull(builder.ownerId, "ownerId == null");
     this.description = builder.description;
     this.stars = builder.stars;
     this.forks = builder.forks;
@@ -37,10 +30,10 @@ public final class RepositoryData {
   }
 
   @Override public String toString() {
-    return "RepositoryData{" +
+    return "RepositoryEntity{" +
         "id='" + id + '\'' +
         ", name='" + name + '\'' +
-        ", owner=" + owner +
+        ", ownerId=" + ownerId +
         ", description='" + description + '\'' +
         ", stars=" + stars +
         ", forks=" + forks +
@@ -52,7 +45,7 @@ public final class RepositoryData {
   public static final class Builder {
     private String id;
     private String name;
-    private UserData owner;
+    private String ownerId;
     private String description;
     private long stars;
     private long forks;
@@ -69,8 +62,8 @@ public final class RepositoryData {
       return this;
     }
 
-    public Builder owner(UserData owner) {
-      this.owner = owner;
+    public Builder owner(String ownerId) {
+      this.ownerId = ownerId;
       return this;
     }
 
@@ -99,8 +92,8 @@ public final class RepositoryData {
       return this;
     }
 
-    public RepositoryData build() {
-      return new RepositoryData(this);
+    public RepositoryEntity build() {
+      return new RepositoryEntity(this);
     }
   }
 }

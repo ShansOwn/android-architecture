@@ -96,7 +96,7 @@ public abstract class BaseFragment extends Fragment implements Toolbar.OnMenuIte
   }
 
   /**
-   * Best place to get Dagger Activity scope component
+   * Best place to getForce Dagger Activity scope component
    * and inject the declared one in the fragment if exist.
    */
   protected void onInjectDependencies() {

@@ -1,6 +1,7 @@
 package com.shansown.androidarchitecture.di.module;
 
 import android.app.Application;
+import android.content.ContentResolver;
 import android.content.Context;
 import com.shansown.androidarchitecture.App;
 import dagger.Module;
@@ -17,13 +18,15 @@ public final class AppModule {
 
   private final App application;
 
-  @Provides @Singleton
-  Application provideApplication() {
+  @Provides @Singleton Application provideApplication() {
     return application;
   }
 
-  @Provides @Singleton
-  Context provideAppContext() {
+  @Provides @Singleton Context provideAppContext() {
     return application;
+  }
+
+  @Provides @Singleton ContentResolver provideContentResolver() {
+    return application.getContentResolver();
   }
 }

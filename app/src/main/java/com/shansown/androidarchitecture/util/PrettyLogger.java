@@ -4,7 +4,7 @@ import android.util.Log;
 import com.orhanobut.logger.Logger;
 import timber.log.Timber;
 
-public class PrettyLogger extends Timber.Tree {
+public final class PrettyLogger extends Timber.Tree {
 
   public PrettyLogger() {
     Logger.init()

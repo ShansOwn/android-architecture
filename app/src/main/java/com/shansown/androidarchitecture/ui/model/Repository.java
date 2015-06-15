@@ -1,31 +1,24 @@
-package com.shansown.androidarchitecture.data.api.dto;
+package com.shansown.androidarchitecture.ui.model;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import com.google.gson.annotations.SerializedName;
 import lombok.Getter;
 import org.joda.time.DateTime;
 
 import static com.shansown.androidarchitecture.util.Preconditions.checkNotNull;
 
 @Getter
-public final class RepositoryData {
+public final class Repository {
   @NonNull private final String id;
   @NonNull private final String name;
-  @NonNull private final UserData owner;
+  @NonNull private final User owner;
   @Nullable private final String description;
-
-  @SerializedName("watchers")
   private final long stars;
   private final long forks;
-
-  @SerializedName("html_url")
   @NonNull private final String htmlUrl;
-
-  @SerializedName("updated_at")
   @NonNull private final DateTime updatedAt;
 
-  private RepositoryData(Builder builder) {
+  private Repository(Builder builder) {
     this.id = checkNotNull(builder.id, "id == null");
     this.name = checkNotNull(builder.name, "name == null");
     this.owner = checkNotNull(builder.owner, "owner == null");
@@ -37,7 +30,7 @@ public final class RepositoryData {
   }
 
   @Override public String toString() {
-    return "RepositoryData{" +
+    return "Repository{" +
         "id='" + id + '\'' +
         ", name='" + name + '\'' +
         ", owner=" + owner +
@@ -52,7 +45,7 @@ public final class RepositoryData {
   public static final class Builder {
     private String id;
     private String name;
-    private UserData owner;
+    private User owner;
     private String description;
     private long stars;
     private long forks;
@@ -69,7 +62,7 @@ public final class RepositoryData {
       return this;
     }
 
-    public Builder owner(UserData owner) {
+    public Builder owner(User owner) {
       this.owner = owner;
       return this;
     }
@@ -99,8 +92,8 @@ public final class RepositoryData {
       return this;
     }
 
-    public RepositoryData build() {
-      return new RepositoryData(this);
+    public Repository build() {
+      return new Repository(this);
     }
   }
 }

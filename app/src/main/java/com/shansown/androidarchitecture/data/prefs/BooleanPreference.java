@@ -2,7 +2,7 @@ package com.shansown.androidarchitecture.data.prefs;
 
 import android.content.SharedPreferences;
 
-public class BooleanPreference {
+public final class BooleanPreference {
   private final SharedPreferences preferences;
   private final String key;
   private final boolean defaultValue;

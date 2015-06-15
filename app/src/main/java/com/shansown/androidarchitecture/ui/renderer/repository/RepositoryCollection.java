@@ -2,13 +2,14 @@ package com.shansown.androidarchitecture.ui.renderer.repository;
 
 import com.pedrogomez.renderers.AdapteeCollection;
 import com.shansown.androidarchitecture.data.api.dto.RepositoryData;
+import com.shansown.androidarchitecture.ui.model.Repository;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-public final class RepositoryCollection implements AdapteeCollection<RepositoryData> {
+public final class RepositoryCollection implements AdapteeCollection<Repository> {
 
-  private final List<RepositoryData> repositories;
+  private final List<Repository> repositories;
 
   public RepositoryCollection() {
     this.repositories = new LinkedList<>();
@@ -18,11 +19,11 @@ public final class RepositoryCollection implements AdapteeCollection<RepositoryD
     return repositories.size();
   }
 
-  @Override public RepositoryData get(int i) {
+  @Override public Repository get(int i) {
     return repositories.get(i);
   }
 
-  @Override public boolean add(RepositoryData repositoryData) {
+  @Override public boolean add(Repository repositoryData) {
     return repositories.add(repositoryData);
   }
 
@@ -30,7 +31,7 @@ public final class RepositoryCollection implements AdapteeCollection<RepositoryD
     return (o instanceof RepositoryData) && repositories.remove(o);
   }
 
-  @Override public boolean addAll(Collection<? extends RepositoryData> collection) {
+  @Override public boolean addAll(Collection<? extends Repository> collection) {
     return repositories.addAll(collection);
   }
 
