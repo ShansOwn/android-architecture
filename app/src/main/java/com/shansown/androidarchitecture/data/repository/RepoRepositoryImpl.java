@@ -12,7 +12,6 @@ import com.shansown.androidarchitecture.data.db.entity.UserEntity;
 import com.shansown.androidarchitecture.data.mapper.RepositoryMapper;
 import com.shansown.androidarchitecture.data.mapper.UserMapper;
 import com.shansown.androidarchitecture.ui.model.Repository;
-import com.shansown.androidarchitecture.util.Pair;
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
@@ -41,16 +40,22 @@ import timber.log.Timber;
   }
 
   public Observable<List<Repository>> getForce(DateTime since, Sort sort, Order order) {
+    Timber.d("Get force: since" + since + " sort: " + sort + " order: " + order);
     return getFromServer(since, sort, order);
   }
 
   public Observable<List<Repository>> get(DateTime since, Sort sort, Order order) {
-    return getFromDb(since, sort, order);
+    Timber.d("Get: since: " + since + " sort: " + sort + " order: " + order);
+    return getFromDb(since, sort, order) //
+        .switchIfEmpty(getFromServer(since, sort, order));
   }
 
   private Observable<List<Repository>> getFromServer(DateTime since, Sort sort, Order order) {
+    Timber.d("Get from server");
     Batch<RepositoryEntity> repoBatch = repoDao.getBatch();
     Batch<UserEntity> userBatch = userDao.getBatch();
+    repoBatch.deleteAll();
+    userBatch.deleteAll();
     return githubService //
         .repositories(new SearchQuery.Builder().createdSince(since).build(), sort, order) //
         .map(repoMapper::toRepoDataList) //
@@ -60,27 +65,22 @@ import timber.log.Timber;
           RepositoryEntity entity = repoMapper.toRepoEntity(r);
           Timber.v("Add to batch: Insert repo entity: " + entity);
           repoBatch.insert(entity);
-        })
+        }) //
         .doOnNext(r -> {
           UserEntity entity = userMapper.toUserEntity(r.getOwner());
           Timber.v("Add to batch: Insert user entity: " + entity);
           userBatch.insert(entity);
-        })
+        }) //
         .doOnCompleted(() -> {
           Timber.v("Apply batch");
           repoBatch.merge(userBatch).apply().subscribe();
-        })
+        }) //
         .toList();
   }
 
   private Observable<List<Repository>> getFromDb(DateTime since, Sort sort, Order order) {
-    //Observable<List<RepositoryEntity>> repos = repoDao.get(since, sort, order);
-    //Observable<List<UserEntity>> users = repos.flatMap(r -> userDao.get(gatherUserIds(r)));
-
-    //Observable<List<Pair<RepositoryEntity, UserEntity>>>
+    Timber.d("Get from db");
     return repoDao.getJoinOwners(since, sort, order).map(repoMapper::toRepoListFromPairList);
-
-    //return Observable.zip(repos, users, repoMapper::toRepoList);
   }
 
   private List<String> gatherUserIds(List<RepositoryEntity> repos) {

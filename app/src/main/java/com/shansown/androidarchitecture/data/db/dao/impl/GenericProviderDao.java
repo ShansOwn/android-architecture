@@ -8,62 +8,44 @@ import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.RemoteException;
+import android.support.annotation.NonNull;
+import com.shansown.androidarchitecture.data.db.dao.BaseDao;
 import com.shansown.androidarchitecture.data.db.dao.Batch;
 import com.shansown.androidarchitecture.data.db.provider.AAProvider;
 import com.shansown.androidarchitecture.util.Pair;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import rx.Observable;
 import rx.functions.Func1;
-import rx.subjects.PublishSubject;
-import rx.subjects.Subject;
+import rx.schedulers.Schedulers;
 import timber.log.Timber;
 
-public abstract class GenericProviderDao<E, U> {
+public abstract class GenericProviderDao<E, U> implements BaseDao<E> {
 
   protected final ContentResolver contentResolver;
-  private final ConcurrentMap<Uri, Subject<E, E>> querySingleSubjectMap = new ConcurrentHashMap<>();
-  private final ConcurrentMap<Uri, Subject<List<E>, List<E>>> querySubjectMap =
-      new ConcurrentHashMap<>();
-  private final ConcurrentMap<Uri, Subject<Cursor, Cursor>> queryCursorSubjectMap =
-      new ConcurrentHashMap<>();
 
   public GenericProviderDao(ContentResolver contentResolver) {
     this.contentResolver = contentResolver;
   }
 
-  public ProviderBatch getBatch() {
+  public Batch<E> getBatch() {
     return new ProviderBatch();
   }
 
   public Observable<E> get(U id) {
     Timber.v("Get by id: %s", id);
     Uri uri = buildUriForId(id);
-    final Subject<E, E> subject = getQuerySingleSubject(uri);
-    return subject.startWith(Observable.defer(() -> Observable.just(querySingle(uri))));
+    return Observable.defer(() -> { //
+      E entity = querySingle(uri);
+      return (entity != null) //
+          ? Observable.just(entity) //
+          : Observable.<E>empty();
+    }).subscribeOn(Schedulers.computation());
   }
 
   public Observable<List<E>> getAll() {
     return get(getContentUri(), null, null, null, null);
-  }
-
-  protected Observable<List<E>> get(Uri uri, String[] projection, String selection,
-      String[] selectionArgs, String sortOrder) {
-    Timber.v("Get for %s", uri);
-    final Subject<List<E>, List<E>> subject = getQuerySubject(uri);
-    return subject.startWith(Observable.defer(() -> //
-        Observable.just(query(uri, projection, selection, selectionArgs, sortOrder))));
-  }
-
-  protected Observable<Cursor> getCursor(Uri uri, String[] projection, String selection,
-      String[] selectionArgs, String sortOrder) {
-    Timber.v("Get for %s", uri);
-    final Subject<Cursor, Cursor> subject = getQueryCursorSubject(uri);
-    return subject.startWith(Observable.defer(() -> //
-        Observable.just(queryCursor(uri, projection, selection, selectionArgs, sortOrder))));
   }
 
   public Observable<Uri> insert(E entity) {
@@ -71,7 +53,8 @@ public abstract class GenericProviderDao<E, U> {
     Timber.v("Insert to %s", uri);
     ContentValues values = toContentValues(entity);
     Timber.v("Values: %s", values);
-    return Observable.defer(() -> Observable.just(insert(uri, values)));
+    return Observable.defer(() -> Observable.just(insert(uri, values)))
+        .subscribeOn(Schedulers.computation());
   }
 
   public Observable<Integer> insert(List<E> entities) {
@@ -92,8 +75,8 @@ public abstract class GenericProviderDao<E, U> {
         Timber.e(e, "Insert entities failed");
         //TODO
       }
-      return Observable.just(results.length);
-    });
+      return (results != null) ? Observable.just(results.length) : Observable.<Integer>empty();
+    }).subscribeOn(Schedulers.computation());
   }
 
   public Observable<Boolean> update(E entity) {
@@ -101,7 +84,8 @@ public abstract class GenericProviderDao<E, U> {
     Timber.v("Update to %s", uri);
     ContentValues values = toContentValues(entity);
     Timber.v("Values: %s", values);
-    return Observable.defer(() -> Observable.just(update(uri, values, null, null) > 0));
+    return Observable.defer(() -> Observable.just(update(uri, values, null, null) > 0))
+        .subscribeOn(Schedulers.computation());
   }
 
   public Observable<Integer> update(List<E> entities) {
@@ -122,22 +106,26 @@ public abstract class GenericProviderDao<E, U> {
         Timber.e(e, "Update entities failed");
         //TODO
       }
-      return Observable.just(results.length);
-    });
+      return (results != null) ? Observable.just(results.length) : Observable.<Integer>empty();
+    }).subscribeOn(Schedulers.computation());
   }
 
-  /*protected void insertOrUpdate(E entity) {
-    Uri uri = buildUriForId(getIdFromEntity(entity));
-    Timber.v("insertOrUpdate to %s", uri);
-    ContentValues values = toContentValues(entity);
-    Timber.v("values(%s)", values);
-    if (contentResolver.update(uri, values, null, null) == 0) {
-      final Uri resultUri = contentResolver.insert(uri, values);
-      Timber.v("Inserted at %s", resultUri);
-    } else {
-      Timber.v("Updated at %s", uri);
-    }
-  }*/
+  protected Observable<List<E>> get(Uri uri, String[] projection, String selection,
+      String[] selectionArgs, String sortOrder) {
+    Timber.v("Get for %s", uri);
+    return Observable.defer(() -> { //
+      List<E> result = query(uri, projection, selection, selectionArgs, sortOrder);
+      return (!result.isEmpty()) //
+          ? Observable.just(result) //
+          : Observable.<List<E>>empty();
+    }).subscribeOn(Schedulers.computation());
+  }
+
+  protected <J> Observable<List<Pair<E, J>>> getJoin(Uri uri, String[] projection, String selection,
+      String[] selectionArgs, String sortOrder, Func1<Cursor, J> cursorToJoinEntity) {
+    return getCursor(uri, projection, selection, selectionArgs, sortOrder) //
+        .map(c -> parseJoinListCursor(c, cursorToJoinEntity));
+  }
 
   protected ContentProviderResult[] applyBatch(ArrayList<ContentProviderOperation> batch)
       throws RemoteException, OperationApplicationException {
@@ -157,71 +145,15 @@ public abstract class GenericProviderDao<E, U> {
     return selection.toString();
   }
 
-  protected E parseEntityCursor(Cursor cursor) {
-    E result = null;
-    if (cursor != null) {
-      if (cursor.moveToFirst()) {
-        result = fromCursor(cursor);
-      }
-      cursor.close();
-    }
-    return result;
-  }
-
-  protected List<E> parseEntityListCursor(Cursor cursor) {
-    List<E> result = new ArrayList<>();
-    if (cursor != null) {
-      if (cursor.moveToFirst()) {
-        do {
-          result.add(fromCursor(cursor));
-        } while (cursor.moveToNext());
-      }
-      cursor.close();
-    }
-    return result;
-  }
-
-  protected <J> Pair<E, J> parseJoinCursor(Cursor cursor, Func1<Cursor, J> cursorToJoinEntity) {
-    Pair<E, J> result = null;
-    if (cursor != null) {
-      if (cursor.moveToFirst()) {
-        result = new Pair<>(fromCursor(cursor), cursorToJoinEntity.call(cursor));
-      }
-      cursor.close();
-    }
-    return result;
-  }
-
-  protected <J> List<Pair<E, J>> parseJoinListCursor(Cursor cursor,
-      Func1<Cursor, J> cursorToJoinEntity) {
-    List<Pair<E, J>> result = new ArrayList<>();
-    if (cursor != null) {
-      if (cursor.moveToFirst()) {
-        do {
-          result.add(new Pair<>(fromCursor(cursor), cursorToJoinEntity.call(cursor)));
-        } while (cursor.moveToNext());
-      }
-      cursor.close();
-    }
-    return result;
-  }
-
-  private Subject<E, E> getQuerySingleSubject(Uri uri) {
-    Timber.v("Get query single subject for %s", uri);
-    querySingleSubjectMap.putIfAbsent(uri, PublishSubject.<E>create());
-    return querySingleSubjectMap.get(uri);
-  }
-
-  private Subject<List<E>, List<E>> getQuerySubject(Uri uri) {
-    Timber.v("Get query subject for %s", uri);
-    querySubjectMap.putIfAbsent(uri, PublishSubject.<List<E>>create());
-    return querySubjectMap.get(uri);
-  }
-
-  private Subject<Cursor, Cursor> getQueryCursorSubject(Uri uri) {
-    Timber.v("Get query subject for %s", uri);
-    queryCursorSubjectMap.putIfAbsent(uri, PublishSubject.<Cursor>create());
-    return queryCursorSubjectMap.get(uri);
+  private Observable<Cursor> getCursor(Uri uri, String[] projection, String selection,
+      String[] selectionArgs, String sortOrder) {
+    Timber.v("Get for %s", uri);
+    return Observable.defer(() -> { //
+      Cursor cursor = queryCursor(uri, projection, selection, selectionArgs, sortOrder);
+      return (cursor != null && cursor.getCount() > 0) //
+          ? Observable.just(cursor) //
+          : Observable.<Cursor>empty();
+    }).subscribeOn(Schedulers.computation());
   }
 
   private E querySingle(Uri uri) {
@@ -233,6 +165,7 @@ public abstract class GenericProviderDao<E, U> {
     return result;
   }
 
+  @NonNull
   private List<E> query(Uri uri, String[] projection, String selection, String[] selectionArgs,
       String sortOrder) {
     Cursor cursor = contentResolver.query(uri, projection, selection, selectionArgs, sortOrder);
@@ -256,6 +189,55 @@ public abstract class GenericProviderDao<E, U> {
     return contentResolver.update(uri, values, selection, selectionArgs);
   }
 
+  private  <J> Pair<E, J> parseJoinCursor(Cursor cursor, Func1<Cursor, J> cursorToJoinEntity) {
+    Pair<E, J> result = null;
+    if (cursor != null) {
+      if (cursor.moveToFirst()) {
+        result = new Pair<>(fromCursor(cursor), cursorToJoinEntity.call(cursor));
+      }
+      cursor.close();
+    }
+    return result;
+  }
+
+  @NonNull private  <J> List<Pair<E, J>> parseJoinListCursor(Cursor cursor,
+      Func1<Cursor, J> cursorToJoinEntity) {
+    List<Pair<E, J>> result = new ArrayList<>();
+    if (cursor != null) {
+      if (cursor.moveToFirst()) {
+        do {
+          result.add(new Pair<>(fromCursor(cursor), cursorToJoinEntity.call(cursor)));
+        } while (cursor.moveToNext());
+      }
+      cursor.close();
+    }
+    return result;
+  }
+
+  private E parseEntityCursor(Cursor cursor) {
+    E result = null;
+    if (cursor != null) {
+      if (cursor.moveToFirst()) {
+        result = fromCursor(cursor);
+      }
+      cursor.close();
+    }
+    return result;
+  }
+
+  @NonNull private List<E> parseEntityListCursor(Cursor cursor) {
+    List<E> result = new ArrayList<>();
+    if (cursor != null) {
+      if (cursor.moveToFirst()) {
+        do {
+          result.add(fromCursor(cursor));
+        } while (cursor.moveToNext());
+      }
+      cursor.close();
+    }
+    return result;
+  }
+
   protected class ProviderBatch implements Batch<E> {
     private ArrayList<ContentProviderOperation> ops = new ArrayList<>();
 
@@ -263,6 +245,11 @@ public abstract class GenericProviderDao<E, U> {
       ops.add(ContentProviderOperation.newInsert(getContentUri())
           .withValues(toContentValues(entity))
           .build());
+      return this;
+    }
+
+    public Batch deleteAll() {
+      ops.add(ContentProviderOperation.newDelete(getContentUri()).build());
       return this;
     }
 
@@ -284,7 +271,7 @@ public abstract class GenericProviderDao<E, U> {
           Timber.e(e, "Apply batch failed");
           //TODO
         }
-        return Observable.just(results);
+        return Observable.just(results).subscribeOn(Schedulers.computation());
       });
     }
   }

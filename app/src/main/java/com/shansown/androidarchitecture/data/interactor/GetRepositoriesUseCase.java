@@ -24,10 +24,11 @@ import timber.log.Timber;
 
   public Observable<List<Repository>> execute(DateTime since, Sort sort, Order order,
       boolean force) {
+    Timber.d(
+        "Execute: since: " + since + " sort: " + sort + " order: " + order + " force: " + force);
     return getRepos(since, sort, order, force) //
         .doOnError(loadingError) //
-        .doOnNext(loadingSuccess) //
-        .subscribeOn(Schedulers.computation());
+        .doOnNext(loadingSuccess);
   }
 
   private Observable<List<Repository>> getRepos(DateTime since, Sort sort, Order order,

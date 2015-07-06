@@ -18,8 +18,6 @@ import javax.inject.Singleton;
 import org.joda.time.DateTime;
 import rx.Observable;
 
-import static com.shansown.androidarchitecture.data.db.table.BaseTable.JOIN;
-
 @Singleton //
 public final class RepositoryProviderDao extends GenericProviderDao<RepositoryEntity, String>
     implements RepositoryDao {
@@ -38,8 +36,7 @@ public final class RepositoryProviderDao extends GenericProviderDao<RepositoryEn
     String select = RepositoryTable.COLUMN_UPDATED_AT + " > ?";
     String[] selctArgs = { String.valueOf(since.getMillis()) };
     String orderBy = sort.toString() + " " + order.toString();
-    return getCursor(uri, null, select, selctArgs, orderBy) //
-        .map(c -> parseJoinListCursor(c, UserTable::fromCursor));
+    return getJoin(uri, null, select, selctArgs, orderBy, UserTable::fromCursor);
   }
 
   private Observable<List<RepositoryEntity>> get(Uri uri, DateTime since, Sort sort, Order order) {

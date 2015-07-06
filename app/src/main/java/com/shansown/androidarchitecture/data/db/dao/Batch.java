@@ -6,6 +6,8 @@ import rx.Observable;
 public interface Batch<E> {
   Batch insert(E entity);
 
+  Batch deleteAll();
+
   Batch merge(Batch that);
 
   Observable<ContentProviderResult[]> apply();
