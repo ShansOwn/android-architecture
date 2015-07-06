@@ -16,9 +16,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.Optional;
 import com.shansown.androidarchitecture.R;
-import com.shansown.androidarchitecture.di.component.ActivityComponent;
 import lombok.Getter;
-import timber.log.Timber;
 
 /**
  * Base fragment created to be extended by every fragment in this application. This class provides

@@ -26,8 +26,7 @@ import timber.log.Timber;
 
 import static com.shansown.androidarchitecture.ui.misc.DividerItemDecoration.VERTICAL_LIST;
 
-public final class TrendingFragment extends BaseFragment
-    implements SwipeRefreshLayout.OnRefreshListener {
+public final class TrendingFragment extends BaseFragment {
 
   @InjectView(R.id.trending_animator) BetterViewAnimator animatorView;
   @InjectView(R.id.trending_swipe_refresh) SwipeRefreshLayout swipeRefreshView;
@@ -55,11 +54,12 @@ public final class TrendingFragment extends BaseFragment
   @Override public void onResume() {
     super.onResume();
     bindViewModel();
-    onLoad();
+    viewModel.onResume();
   }
 
   @Override public void onPause() {
     super.onPause();
+    viewModel.onPause();
     unbindViewModel();
   }
 
@@ -86,14 +86,6 @@ public final class TrendingFragment extends BaseFragment
     return super.onMenuItemClick(item);
   }
 
-  @Override public void onRefresh() {
-    viewModel.onRefresh();
-  }
-
-  protected void onLoad() {
-    viewModel.onLoad();
-  }
-
   private void initViews(View rootView) {
     float dividerPaddingStart =
         getResources().getDimensionPixelSize(R.dimen.content_left_margin_from_screen_edge);
@@ -107,11 +99,11 @@ public final class TrendingFragment extends BaseFragment
     trendingList.setAdapter(adapter);
 
     swipeRefreshView.setColorSchemeResources(R.color.theme_accent);
-    swipeRefreshView.setOnRefreshListener(this);
+    swipeRefreshView.setOnRefreshListener(viewModel::onRefresh);
   }
 
   private void bindViewModel() {
-    rxBinderUtil.bindProperty(viewModel.getRepositories(), this::onRepositoriesLoaded);
+    rxBinderUtil.bindProperty(viewModel.getShowRepositories(), this::onShowRepositories);
     rxBinderUtil.bindProperty(viewModel.getRefreshViewVisibility(), this::showRefreshing);
     rxBinderUtil.bindProperty(viewModel.getLoadViewVisibility(), this::showLoading);
   }
@@ -127,10 +119,12 @@ public final class TrendingFragment extends BaseFragment
   }
 
   private void showRefreshing(Boolean visible) {
+    Timber.d("Show refreshing: " + visible);
     swipeRefreshView.setRefreshing(visible);
   }
 
   private void showLoading(Boolean visible) {
+    Timber.d("Show loading: " + visible);
     if (visible) {
       if (!(animatorView.getDisplayedChildId() == R.id.trending_loading)) {
         animatorView.setDisplayedChildId(R.id.trending_loading);
@@ -138,8 +132,8 @@ public final class TrendingFragment extends BaseFragment
     }
   }
 
-  private void onRepositoriesLoaded(List<Repository> repositories) {
-    Timber.d("On repositories loaded: " + repositories);
+  private void onShowRepositories(List<Repository> repositories) {
+    Timber.d("On repositories show: " + repositories);
     repositoryCollection.clear();
     repositoryCollection.addAll(repositories);
     adapter.notifyDataSetChanged();
