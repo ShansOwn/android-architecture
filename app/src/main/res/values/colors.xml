@@ -9,6 +9,7 @@
 
   <color name="text_primary">#eee</color>
   <color name="text_secondary">#ccc</color>
+  <color name="timespan_title_text">#fff</color>
 
   <color name="list_divider">#ccc</color>
 

@@ -21,7 +21,7 @@
     </activity>
 
     <provider
-        android:authorities="com.shansown.androidarchitecture"
+        android:authorities="${applicationId}"
         android:name=".data.db.provider.AAProvider"
         android:exported="false"/>
   </application>

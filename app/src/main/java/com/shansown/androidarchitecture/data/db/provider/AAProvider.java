@@ -24,7 +24,7 @@ import static com.shansown.androidarchitecture.data.db.table.BaseTable.QUERY_PAR
 
 public final class AAProvider extends ContentProvider {
 
-  public static final String CONTENT_AUTHORITY = "com.shansown.androidarchitecture";
+  public static final String CONTENT_AUTHORITY = BuildConfig.APPLICATION_ID;
 
   /**
    * URI ID for route: /{@link UserTable#TABLE_NAME}
