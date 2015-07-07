@@ -10,7 +10,7 @@ import javax.inject.Inject;
 import org.joda.time.DateTime;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.subjects.PublishSubject;
+import rx.subjects.BehaviorSubject;
 import timber.log.Timber;
 
 /**
@@ -20,10 +20,10 @@ public final class TrendingViewModel {
 
   private final GetRepositoriesUseCase getRepositoriesUseCase;
 
-  private final PublishSubject<List<Repository>> showRepositoriesSubject =
-      PublishSubject.create();
-  private final PublishSubject<Boolean> refreshViewVisibilitySubject = PublishSubject.create();
-  private final PublishSubject<Boolean> loadViewVisibilitySubject = PublishSubject.create();
+  private final BehaviorSubject<List<Repository>> showRepositoriesSubject =
+      BehaviorSubject.create();
+  private final BehaviorSubject<Boolean> refreshViewVisibilitySubject = BehaviorSubject.create();
+  private final BehaviorSubject<Boolean> loadViewVisibilitySubject = BehaviorSubject.create();
 
   private State state = State.LOADING;
   private boolean wasPaused;
