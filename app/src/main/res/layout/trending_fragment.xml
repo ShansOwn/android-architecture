@@ -1,35 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/AppTheme.RootView.Vertical"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     >
-  <include layout="@layout/toolbar_fragment"/>
-  <com.shansown.androidarchitecture.ui.misc.BetterViewAnimator
-      android:id="@+id/trending_animator"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:inAnimation="@android:anim/fade_in"
-      android:outAnimation="@android:anim/fade_out"
+  <data class="TrendingView">
+    <import type="android.view.View"/>
+    <variable
+        name="viewModel"
+        type="com.shansown.androidarchitecture.ui.trending.TrendingViewModel"
+        />
+  </data>
+  <LinearLayout
+      style="@style/AppTheme.RootView.Vertical"
       >
-    <RelativeLayout
-        android:id="@+id/trending_loading"
+    <include layout="@layout/toolbar_fragment"/>
+    <com.shansown.androidarchitecture.ui.misc.BetterViewAnimator
+        android:id="@+id/trending_animator"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:inAnimation="@android:anim/fade_in"
+        android:outAnimation="@android:anim/fade_out"
         >
-      <ProgressBar
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_centerInParent="true"
-          />
-    </RelativeLayout>
-    <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/trending_swipe_refresh"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        >
-      <android.support.v7.widget.RecyclerView
-          style="@style/AppTheme.ListView"
-          android:id="@+id/trending_list"
-          />
-    </android.support.v4.widget.SwipeRefreshLayout>
-  </com.shansown.androidarchitecture.ui.misc.BetterViewAnimator>
-</LinearLayout>
+      <RelativeLayout
+          android:id="@+id/trending_loading"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          >
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            app:visibility="@{viewModel.isRefreshing ? View.VISIBLE : View.GONE}"
+            />
+      </RelativeLayout>
+      <android.support.v4.widget.SwipeRefreshLayout
+          android:id="@+id/trending_swipe_refresh"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          >
+        <android.support.v7.widget.RecyclerView
+            style="@style/AppTheme.ListView"
+            android:id="@+id/trending_list"
+            />
+      </android.support.v4.widget.SwipeRefreshLayout>
+    </com.shansown.androidarchitecture.ui.misc.BetterViewAnimator>
+  </LinearLayout>
+</layout>

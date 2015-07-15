@@ -1,16 +1,20 @@
 package com.shansown.androidarchitecture.ui.trending;
 
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import butterknife.InjectView;
 import com.pedrogomez.renderers.RVRendererAdapter;
 import com.shansown.androidarchitecture.R;
+import com.shansown.androidarchitecture.databinding.TrendingView;
 import com.shansown.androidarchitecture.ui.model.Repository;
 import com.shansown.androidarchitecture.di.Injector;
 import com.shansown.androidarchitecture.di.component.TrendingActivityComponent;
@@ -44,6 +48,13 @@ public final class TrendingFragment extends BaseFragment {
   @Override protected void onInjectDependencies() {
     super.onInjectDependencies();
     Injector.obtain(getActivity(), TrendingActivityComponent.class).inject(this);
+  }
+
+  @Override public View onCreateView(LayoutInflater inflater, ViewGroup container,
+      Bundle savedInstanceState) {
+    TrendingView view = DataBindingUtil.setContentView(getActivity(), getLayoutId());
+    view.setViewModel(viewModel);
+    return inflater.inflate(getLayoutId(), container, false);
   }
 
   @Override public void onViewCreated(View view, Bundle savedInstanceState) {
@@ -104,8 +115,6 @@ public final class TrendingFragment extends BaseFragment {
 
   private void bindViewModel() {
     rxBinderUtil.bindProperty(viewModel.getShowRepositories(), this::onShowRepositories);
-    rxBinderUtil.bindProperty(viewModel.getRefreshViewVisibility(), this::showRefreshing);
-    rxBinderUtil.bindProperty(viewModel.getLoadViewVisibility(), this::showLoading);
   }
 
   private void unbindViewModel() {
