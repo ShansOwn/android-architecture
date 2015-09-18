@@ -4,11 +4,11 @@ import android.content.ContentProviderResult;
 import rx.Observable;
 
 public interface Batch<E> {
-  Batch insert(E entity);
+  Batch<E> insert(E entity);
 
-  Batch deleteAll();
+  Batch<E> deleteAll();
 
-  Batch merge(Batch that);
+  Batch<E> merge(Batch that);
 
   Observable<ContentProviderResult[]> apply();
 }

@@ -10,6 +10,7 @@ import android.view.MenuItem;
 import android.view.View;
 import butterknife.InjectView;
 import com.pedrogomez.renderers.RVRendererAdapter;
+import com.shansown.androidarchitecture.ui.BaseVM;
 import com.shansown.androidarchitecture.R;
 import com.shansown.androidarchitecture.ui.model.Repository;
 import com.shansown.androidarchitecture.di.Injector;
@@ -32,10 +33,8 @@ public final class TrendingFragment extends BaseFragment {
   @InjectView(R.id.trending_swipe_refresh) SwipeRefreshLayout swipeRefreshView;
   @InjectView(R.id.trending_list) RecyclerView trendingList;
 
-  @Inject TrendingViewModel viewModel;
+  @Inject TrendingVM viewModel;
   @Inject RepositoryRendererAdapterFactory repositoryRendererAdapterFactory;
-
-  private final RxBinderUtil rxBinderUtil = new RxBinderUtil(this);
 
   private Toolbar toolbar;
   private RVRendererAdapter<Repository> adapter;
@@ -46,21 +45,19 @@ public final class TrendingFragment extends BaseFragment {
     Injector.obtain(getActivity(), TrendingActivityComponent.class).inject(this);
   }
 
+  @Override protected void bindViewModel(RxBinderUtil rxBinderUtil) {
+    rxBinderUtil.bindProperty(viewModel.getRefreshViewVisibility(), this::showRefreshing);
+    rxBinderUtil.bindProperty(viewModel.getLoadViewVisibility(), this::showLoading);
+    rxBinderUtil.bindProperty(viewModel.getShowRepositories(), this::showRepositories);
+  }
+
+  @Override protected BaseVM getViewModel() {
+    return viewModel;
+  }
+
   @Override public void onViewCreated(View view, Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
     initViews(view);
-  }
-
-  @Override public void onResume() {
-    super.onResume();
-    bindViewModel();
-    viewModel.onResume();
-  }
-
-  @Override public void onPause() {
-    super.onPause();
-    viewModel.onPause();
-    unbindViewModel();
   }
 
   @Override protected int getLayoutId() {
@@ -102,16 +99,6 @@ public final class TrendingFragment extends BaseFragment {
     swipeRefreshView.setOnRefreshListener(viewModel::onRefresh);
   }
 
-  private void bindViewModel() {
-    rxBinderUtil.bindProperty(viewModel.getShowRepositories(), this::onShowRepositories);
-    rxBinderUtil.bindProperty(viewModel.getRefreshViewVisibility(), this::showRefreshing);
-    rxBinderUtil.bindProperty(viewModel.getLoadViewVisibility(), this::showLoading);
-  }
-
-  private void unbindViewModel() {
-    rxBinderUtil.clear();
-  }
-
   private void showContent() {
     if (!(animatorView.getDisplayedChildId() == R.id.trending_swipe_refresh)) {
       animatorView.setDisplayedChildId(R.id.trending_swipe_refresh);
@@ -132,7 +119,7 @@ public final class TrendingFragment extends BaseFragment {
     }
   }
 
-  private void onShowRepositories(List<Repository> repositories) {
+  private void showRepositories(List<Repository> repositories) {
     Timber.d("On repositories show: " + repositories);
     repositoryCollection.clear();
     repositoryCollection.addAll(repositories);

@@ -16,7 +16,7 @@ import com.shansown.androidarchitecture.ui.model.Repository;
 import com.shansown.androidarchitecture.ui.model.User;
 import com.shansown.androidarchitecture.ui.misc.CircleStrokeTransformation;
 import com.shansown.androidarchitecture.ui.misc.Truss;
-import com.shansown.androidarchitecture.ui.trending.TrendingViewModel;
+import com.shansown.androidarchitecture.ui.trending.TrendingVM;
 import com.squareup.picasso.Picasso;
 import dagger.Lazy;
 import javax.inject.Inject;
@@ -33,7 +33,7 @@ public final class TrendingRepositoryRenderer extends Renderer<Repository> {
   @InjectView(R.id.trending_repository_forks) TextView forksView;
 
   private final Picasso picasso;
-  @Inject Lazy<TrendingViewModel> viewModelLazy;
+  @Inject Lazy<TrendingVM> viewModelLazy;
   private final CircleStrokeTransformation avatarTransformation;
   private final int descriptionColor;
 

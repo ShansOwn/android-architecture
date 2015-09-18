@@ -13,6 +13,7 @@ import com.shansown.androidarchitecture.data.mapper.RepositoryMapper;
 import com.shansown.androidarchitecture.data.mapper.UserMapper;
 import com.shansown.androidarchitecture.ui.model.Repository;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -73,7 +74,10 @@ import timber.log.Timber;
         }) //
         .doOnCompleted(() -> {
           Timber.v("Apply batch");
-          repoBatch.merge(userBatch).apply().subscribe();
+          repoBatch.merge(userBatch)
+              .apply()
+              .subscribe(res -> Timber.v("Apply batch result: " + Arrays.toString(res)),
+                  e -> Timber.e(e, "Apply batch failed"));
         }) //
         .toList();
   }

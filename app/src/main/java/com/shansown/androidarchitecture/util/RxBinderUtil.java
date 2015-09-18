@@ -9,6 +9,11 @@ import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
+/**
+ * Class designed for views and viewmodels bindings
+ *
+ * For appropriate work all public methods should be invoked in main thread
+ */
 public final class RxBinderUtil {
 
   final private String tag;

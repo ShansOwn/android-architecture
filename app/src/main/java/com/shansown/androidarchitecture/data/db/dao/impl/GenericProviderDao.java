@@ -41,7 +41,7 @@ public abstract class GenericProviderDao<E, U> implements BaseDao<E> {
       return (entity != null) //
           ? Observable.just(entity) //
           : Observable.<E>empty();
-    }).subscribeOn(Schedulers.computation());
+    }).subscribeOn(Schedulers.io());
   }
 
   public Observable<List<E>> getAll() {
@@ -49,25 +49,27 @@ public abstract class GenericProviderDao<E, U> implements BaseDao<E> {
   }
 
   public Observable<Uri> insert(E entity) {
-    Uri uri = getContentUri();
-    Timber.v("Insert to %s", uri);
-    ContentValues values = toContentValues(entity);
-    Timber.v("Values: %s", values);
-    return Observable.defer(() -> Observable.just(insert(uri, values)))
-        .subscribeOn(Schedulers.computation());
+
+    return Observable.defer(() -> {
+      Uri uri = getContentUri();
+      Timber.v("Insert to %s", uri);
+      ContentValues values = toContentValues(entity);
+      Timber.v("Values: %s", values);
+      return Observable.just(insert(uri, values));
+    }).subscribeOn(Schedulers.io());
   }
 
   public Observable<Integer> insert(List<E> entities) {
     Timber.v("Batch insert");
-    ArrayList<ContentProviderOperation> batch = new ArrayList<>();
-    Uri uri = getContentUri();
-    for (E entity : entities) {
-      Timber.v("Insert to %s", uri);
-      ContentValues values = toContentValues(entity);
-      Timber.v("Values: %s", values);
-      batch.add(ContentProviderOperation.newInsert(uri).withValues(values).build());
-    }
     return Observable.defer(() -> {
+      ArrayList<ContentProviderOperation> batch = new ArrayList<>();
+      Uri uri = getContentUri();
+      for (E entity : entities) {
+        Timber.v("Insert to %s", uri);
+        ContentValues values = toContentValues(entity);
+        Timber.v("Values: %s", values);
+        batch.add(ContentProviderOperation.newInsert(uri).withValues(values).build());
+      }
       ContentProviderResult[] results = null;
       try {
         results = applyBatch(batch);
@@ -76,7 +78,7 @@ public abstract class GenericProviderDao<E, U> implements BaseDao<E> {
         //TODO
       }
       return (results != null) ? Observable.just(results.length) : Observable.<Integer>empty();
-    }).subscribeOn(Schedulers.computation());
+    }).subscribeOn(Schedulers.io());
   }
 
   public Observable<Boolean> update(E entity) {
@@ -85,7 +87,7 @@ public abstract class GenericProviderDao<E, U> implements BaseDao<E> {
     ContentValues values = toContentValues(entity);
     Timber.v("Values: %s", values);
     return Observable.defer(() -> Observable.just(update(uri, values, null, null) > 0))
-        .subscribeOn(Schedulers.computation());
+        .subscribeOn(Schedulers.io());
   }
 
   public Observable<Integer> update(List<E> entities) {
@@ -107,7 +109,7 @@ public abstract class GenericProviderDao<E, U> implements BaseDao<E> {
         //TODO
       }
       return (results != null) ? Observable.just(results.length) : Observable.<Integer>empty();
-    }).subscribeOn(Schedulers.computation());
+    }).subscribeOn(Schedulers.io());
   }
 
   protected Observable<List<E>> get(Uri uri, String[] projection, String selection,
@@ -118,7 +120,7 @@ public abstract class GenericProviderDao<E, U> implements BaseDao<E> {
       return (!result.isEmpty()) //
           ? Observable.just(result) //
           : Observable.<List<E>>empty();
-    }).subscribeOn(Schedulers.computation());
+    }).subscribeOn(Schedulers.io());
   }
 
   protected <J> Observable<List<Pair<E, J>>> getJoin(Uri uri, String[] projection, String selection,
@@ -153,7 +155,7 @@ public abstract class GenericProviderDao<E, U> implements BaseDao<E> {
       return (cursor != null && cursor.getCount() > 0) //
           ? Observable.just(cursor) //
           : Observable.<Cursor>empty();
-    }).subscribeOn(Schedulers.computation());
+    }).subscribeOn(Schedulers.io());
   }
 
   private E querySingle(Uri uri) {
@@ -189,7 +191,7 @@ public abstract class GenericProviderDao<E, U> implements BaseDao<E> {
     return contentResolver.update(uri, values, selection, selectionArgs);
   }
 
-  private  <J> Pair<E, J> parseJoinCursor(Cursor cursor, Func1<Cursor, J> cursorToJoinEntity) {
+  private <J> Pair<E, J> parseJoinCursor(Cursor cursor, Func1<Cursor, J> cursorToJoinEntity) {
     Pair<E, J> result = null;
     if (cursor != null) {
       if (cursor.moveToFirst()) {
@@ -200,7 +202,7 @@ public abstract class GenericProviderDao<E, U> implements BaseDao<E> {
     return result;
   }
 
-  @NonNull private  <J> List<Pair<E, J>> parseJoinListCursor(Cursor cursor,
+  @NonNull private <J> List<Pair<E, J>> parseJoinListCursor(Cursor cursor,
       Func1<Cursor, J> cursorToJoinEntity) {
     List<Pair<E, J>> result = new ArrayList<>();
     if (cursor != null) {
@@ -241,19 +243,19 @@ public abstract class GenericProviderDao<E, U> implements BaseDao<E> {
   protected class ProviderBatch implements Batch<E> {
     private ArrayList<ContentProviderOperation> ops = new ArrayList<>();
 
-    public Batch insert(E entity) {
+    public Batch<E> insert(E entity) {
       ops.add(ContentProviderOperation.newInsert(getContentUri())
           .withValues(toContentValues(entity))
           .build());
       return this;
     }
 
-    public Batch deleteAll() {
+    public Batch<E> deleteAll() {
       ops.add(ContentProviderOperation.newDelete(getContentUri()).build());
       return this;
     }
 
-    @SuppressWarnings("unchecked") public Batch merge(Batch that) {
+    @SuppressWarnings("unchecked") public Batch<E> merge(Batch that) {
       if (that.getClass() != ProviderBatch.class) {
         throw new IllegalArgumentException("Batch should be ProviderBatch");
       }
@@ -262,17 +264,16 @@ public abstract class GenericProviderDao<E, U> implements BaseDao<E> {
     }
 
     public Observable<ContentProviderResult[]> apply() {
-      return Observable.defer(() -> {
+      return Observable.<ContentProviderResult[]>create(s -> {
         ContentProviderResult[] results = null;
         try {
           results = applyBatch(ops);
-          Timber.v("Apply batch result: " + Arrays.toString(results));
-        } catch (RemoteException | OperationApplicationException e) {
-          Timber.e(e, "Apply batch failed");
-          //TODO
+          s.onNext(results);
+          s.onCompleted();
+        } catch (Exception e) {
+          s.onError(e);
         }
-        return Observable.just(results).subscribeOn(Schedulers.computation());
-      });
+      }).subscribeOn(Schedulers.io());
     }
   }
 

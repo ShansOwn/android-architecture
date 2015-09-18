@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.MenuRes;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
@@ -16,7 +17,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.Optional;
 import com.shansown.androidarchitecture.R;
-import lombok.Getter;
+import com.shansown.androidarchitecture.util.RxBinderUtil;
 
 /**
  * Base fragment created to be extended by every fragment in this application. This class provides
@@ -27,8 +28,9 @@ public abstract class BaseFragment extends Fragment implements Toolbar.OnMenuIte
 
   @Optional @InjectView(R.id.toolbar_fragment) Toolbar toolbar;
 
-  @Getter
-  private boolean wasPaused;
+  private final RxBinderUtil rxBinderUtil = new RxBinderUtil(this);
+
+  @Nullable private BaseVM viewModel;
 
   @Override public void onAttach(Activity activity) {
     super.onAttach(activity);
@@ -42,7 +44,11 @@ public abstract class BaseFragment extends Fragment implements Toolbar.OnMenuIte
 
   @Override public void onViewCreated(View view, Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
-    injectViews(view);
+    bindViews(view);
+    viewModel = getViewModel();
+    if (viewModel != null) {
+      viewModel.init();
+    }
   }
 
   @Override public void onActivityCreated(Bundle savedInstanceState) {
@@ -50,9 +56,24 @@ public abstract class BaseFragment extends Fragment implements Toolbar.OnMenuIte
     initToolbar();
   }
 
+  @Override public void onResume() {
+    super.onResume();
+    bindViewModel(rxBinderUtil);
+    if (viewModel != null) {
+      viewModel.onBind();
+    }
+  }
+
   @Override public void onPause() {
     super.onPause();
-    wasPaused = true;
+    unbindViewModel();
+  }
+
+  @Override public void onDestroyView() {
+    super.onDestroyView();
+    if (viewModel != null) {
+      viewModel.dispose();
+    }
   }
 
   @Override public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -101,6 +122,16 @@ public abstract class BaseFragment extends Fragment implements Toolbar.OnMenuIte
   }
 
   /**
+   * Best place to bind view model.
+   */
+  protected abstract void bindViewModel(RxBinderUtil rxBinderUtil);
+
+  /**
+   * Best place to bind view model.
+   */
+  protected abstract BaseVM getViewModel();
+
+  /**
    * Called when fragment toolbar has been initialized
    *
    * @param toolbar Initialized toolbar
@@ -141,13 +172,20 @@ public abstract class BaseFragment extends Fragment implements Toolbar.OnMenuIte
     return true;
   }
 
+  private void unbindViewModel() {
+    if (viewModel != null) {
+      viewModel.onUnbind();
+    }
+    rxBinderUtil.clear();
+  }
+
   /**
    * Replace every field annotated with ButterKnife annotations like @InjectView with the proper
    * value.
    *
    * @param view to extract each widget injected in the fragment.
    */
-  private void injectViews(final View view) {
+  private void bindViews(final View view) {
     ButterKnife.inject(this, view);
   }
 }

@@ -5,7 +5,6 @@ import com.shansown.androidarchitecture.di.annotation.PerActivity;
 import com.shansown.androidarchitecture.di.module.TrendingActivityModule;
 import com.shansown.androidarchitecture.ui.trending.TrendingActivity;
 import com.shansown.androidarchitecture.ui.trending.TrendingFragment;
-import com.shansown.androidarchitecture.ui.trending.TrendingViewModel;
 import dagger.Component;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

@@ -9,6 +9,7 @@
       android:layout_height="match_parent"
       android:inAnimation="@android:anim/fade_in"
       android:outAnimation="@android:anim/fade_out"
+      android:animateFirstView="false"
       >
     <RelativeLayout
         android:id="@+id/trending_loading"

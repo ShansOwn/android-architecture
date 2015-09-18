@@ -1,5 +1,6 @@
 package com.shansown.androidarchitecture.ui.trending;
 
+import com.shansown.androidarchitecture.ui.BaseVM;
 import com.shansown.androidarchitecture.data.api.Order;
 import com.shansown.androidarchitecture.data.api.Sort;
 import com.shansown.androidarchitecture.data.interactor.GetRepositoriesUseCase;
@@ -10,23 +11,22 @@ import javax.inject.Inject;
 import org.joda.time.DateTime;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.subjects.BehaviorSubject;
+import rx.subjects.PublishSubject;
 import timber.log.Timber;
 
 /**
  * ViewModel created to represent a Trending from the presentation point of view.
  */
-public final class TrendingViewModel {
+public final class TrendingVM extends BaseVM {
 
   private final GetRepositoriesUseCase getRepositoriesUseCase;
 
-  private final BehaviorSubject<List<Repository>> showRepositoriesSubject =
-      BehaviorSubject.create();
-  private final BehaviorSubject<Boolean> refreshViewVisibilitySubject = BehaviorSubject.create();
-  private final BehaviorSubject<Boolean> loadViewVisibilitySubject = BehaviorSubject.create();
+  private final PublishSubject<List<Repository>> showRepositories =
+      PublishSubject.create();
+  private final PublishSubject<Boolean> refreshViewVisibility = PublishSubject.create();
+  private final PublishSubject<Boolean> loadViewVisibility = PublishSubject.create();
 
   private State state = State.LOADING;
-  private boolean wasPaused;
 
   private Sort sort = Sort.STARS;
   private Order order = Order.DESC;
@@ -34,19 +34,14 @@ public final class TrendingViewModel {
 
   private List<Repository> repositories = new ArrayList<>();
 
-  @Inject public TrendingViewModel(GetRepositoriesUseCase getRepositoriesUseCase) {
+  @Inject public TrendingVM(GetRepositoriesUseCase getRepositoriesUseCase) {
     this.getRepositoriesUseCase = getRepositoriesUseCase;
     Timber.v("TrendingViewModel created: " + this);
   }
 
-  public void onResume() {
-    Timber.v("On Resume");
-    if (!wasPaused) load();
-  }
-
-  public void onPause() {
-    Timber.v("On Pause");
-    wasPaused = true;
+  @Override public void init() {
+    super.init();
+    load();
   }
 
   public void load() {
@@ -64,15 +59,15 @@ public final class TrendingViewModel {
   }
 
   public Observable<List<Repository>> getShowRepositories() {
-    return showRepositoriesSubject;
+    return showRepositories.asObservable();
   }
 
   public Observable<Boolean> getRefreshViewVisibility() {
-    return refreshViewVisibilitySubject;
+    return refreshViewVisibility.asObservable();
   }
 
   public Observable<Boolean> getLoadViewVisibility() {
-    return loadViewVisibilitySubject;
+    return loadViewVisibility.asObservable();
   }
 
   public void onRepositoryClicked(Repository repository) {
@@ -85,32 +80,22 @@ public final class TrendingViewModel {
         .subscribe(this::onRepositoriesLoaded, this::onRepositoriesFailed);
   }
 
-  private void showRefreshing() {
-    Timber.d("Show refreshing");
-    refreshViewVisibilitySubject.onNext(true);
+  private void onRepositoriesLoaded(List<Repository> repos) {
+    Timber.d("Publishing " + repos.size() + " repositories from the ViewModel");
+    hideRefreshLoad();
+    addNewRepositories(repos);
+    state = State.ON_CONTENT;
+    showRepositories(repositories);
   }
 
-  private void hideRefreshing() {
-    Timber.d("Hide refreshing");
-    refreshViewVisibilitySubject.onNext(false);
-  }
-
-  private void showLoading() {
-    Timber.d("Show loading");
-    loadViewVisibilitySubject.onNext(true);
-  }
-
-  private void hideLoading() {
-    Timber.d("Hide loading");
-    loadViewVisibilitySubject.onNext(false);
-  }
-
-  private void showRepositories(List<Repository> repositories) {
-    Timber.d("Show repositories");
-    showRepositoriesSubject.onNext(repositories);
+  private void onRepositoriesFailed(Throwable e) {
+    Timber.e(e, "On repositories failed!");
+    hideRefreshLoad();
+    state = State.ON_ERROR;
   }
 
   private void hideRefreshLoad() {
+    Timber.d("Hide refresh/load");
     switch (state) {
       case REFRESHING:
         hideRefreshing();
@@ -134,18 +119,30 @@ public final class TrendingViewModel {
     }
   }
 
-  private void onRepositoriesLoaded(List<Repository> repos) {
-    Timber.d("Publishing " + repos.size() + " repositories from the ViewModel");
-    hideRefreshLoad();
-    addNewRepositories(repos);
-    state = State.ON_CONTENT;
-    showRepositories(repositories);
+  // --- View actions ---
+  private void showRefreshing() {
+    Timber.d("Show refreshing");
+    viewAction(() -> refreshViewVisibility.onNext(true));
   }
 
-  private void onRepositoriesFailed(Throwable e) {
-    Timber.e(e, "On repositories failed!");
-    hideRefreshLoad();
-    state = State.ON_ERROR;
+  private void hideRefreshing() {
+    Timber.d("Hide refreshing");
+    viewAction(() -> refreshViewVisibility.onNext(false));
+  }
+
+  private void showLoading() {
+    Timber.d("Show loading");
+    viewAction(() -> loadViewVisibility.onNext(true));
+  }
+
+  private void hideLoading() {
+    Timber.d("Hide loading");
+    viewAction(() -> loadViewVisibility.onNext(false));
+  }
+
+  private void showRepositories(List<Repository> repositories) {
+    Timber.d("Show repositories");
+    viewAction(() -> showRepositories.onNext(repositories));
   }
 
   private enum State {
